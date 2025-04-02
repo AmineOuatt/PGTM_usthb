@@ -1,0 +1,44 @@
+<UserControl x:Class="DataGridNamespace.ThesisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks">
+	<Grid>
+		<DataGrid ItemsSource="{Binding Theses}" Style="{DynamicResource DataGridStyle1}"
+                  RowStyle="{DynamicResource DataGridRowStyle1}"
+                  ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}"
+                  CellStyle="{DynamicResource DataGridCellStyle1}">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="*"/>
+				<DataGridTextColumn Header="Author" Binding="{Binding Author}" Width="*"/>
+				<DataGridTextColumn Header="Specialty" Binding="{Binding Specialty}" Width="*"/>
+				<DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="*"/>
+				<DataGridTextColumn Header="Keyword" Binding="{Binding Keyword}" Width="*"/>
+				<DataGridTextColumn Header="Year" Binding="{Binding Year}" Width="auto"/>
+
+				<!-- PDF Link Column -->
+				<DataGridTemplateColumn Header="PDF Link" IsReadOnly="True" Width="auto">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBlock>
+								<Hyperlink NavigateUri="{Binding PdfLink}" RequestNavigate="Hyperlink_RequestNavigate">
+									<TextBlock Text="View PDF"/>
+								</Hyperlink>
+							</TextBlock>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<!-- Delete Button Column -->
+				<DataGridTemplateColumn Header="Operations" IsReadOnly="True" Width="auto">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Button Style="{StaticResource gridRemoveButton}" Click="DeleteButton_Click" Tag="{Binding}">
+								<Icon:PackIconMaterial Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
+							</Button>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+	</Grid>
+</UserControl>
