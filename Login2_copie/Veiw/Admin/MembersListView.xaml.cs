@@ -45,40 +45,51 @@ namespace DataGridNamespace.Admin
 
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
-                    conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    try
                     {
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        conn.Open();
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
                         {
-                            while (reader.Read())
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
                             {
-                                try
+                                while (reader.Read())
                                 {
-                                    var roleString = reader.GetString("Role");
-                                    var role = ConvertStringToRole(roleString);
-
-                                    var user = new User
+                                    try
                                     {
-                                        Id = reader.GetInt32("Id"),
-                                        Nom = reader.GetString("Nom"),
-                                        Email = reader.GetString("Email"),
-                                        Role = role
-                                    };
-                                    _members.Add(user);
-                                }
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show($"Error processing user: {ex.Message}", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                    continue; // Skip this user but continue with others
+                                        var roleString = reader.GetString("Role");
+                                        var role = ConvertStringToRole(roleString);
+
+                                        var user = new User
+                                        {
+                                            Id = reader.GetInt32("Id"),
+                                            Nom = reader.GetString("Nom"),
+                                            Email = reader.GetString("Email"),
+                                            Role = role
+                                        };
+                                        _members.Add(user);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show($"Error processing user data: {ex.Message}\nPlease check the database structure.", 
+                                            "Data Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                        continue;
+                                    }
                                 }
                             }
                         }
+                    }
+                    catch (MySqlException ex)
+                    {
+                        MessageBox.Show($"Database connection error: {ex.Message}\nPlease check your database connection settings.", 
+                            "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading members: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading members: {ex.Message}\nPlease contact system administrator.", 
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

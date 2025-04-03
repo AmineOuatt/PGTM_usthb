@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using DataGridNamespace;
 using MyProject;
+using DataGridNamespace.Admin;
 
 namespace DataGrid
 {
@@ -54,7 +55,7 @@ namespace DataGrid
             ThesisButton.Background = Brushes.Transparent;
             ProfileButton.Background = Brushes.Transparent;
             FavoritesButton.Background = Brushes.Transparent;
-            MainFrame.Navigate(new DataGridNamespace.MainWindow("admin"));
+            MainFrame.Navigate(new MembersListView());
         }
 
         // زر Profile
