@@ -5,111 +5,113 @@
         xmlns:Icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="Edit Member" 
         Height="450" 
-        Width="400"
+        Width="450"
         WindowStartupLocation="CenterScreen"
         WindowStyle="ToolWindow"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        Background="#F5F5F5">
     
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <Window.Resources>
+        <!-- Gradient Brush for Button -->
+        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#6200EE" Offset="0"/>
+            <GradientStop Color="#3700B3" Offset="1"/>
+        </LinearGradientBrush>
 
-        <TextBlock Text="Edit Member" 
-                   Grid.Row="0" 
-                   Grid.ColumnSpan="2" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   Margin="0,0,0,20"/>
+        <!-- Style for Button -->
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#6200EE"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Width" Value="90"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#03DAC5"/>
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-        <TextBlock Text="Name:" 
-                   Grid.Row="1" 
-                   Grid.Column="0" 
-                   VerticalAlignment="Center"
-                   Margin="0,0,10,10"/>
-        <TextBox x:Name="NameTextBox" 
-                 Grid.Row="1" 
-                 Grid.Column="1" 
-                 Height="30"
-                 Margin="0,0,0,10"/>
+        <!-- Style for TextBox -->
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="Margin" Value="0,3,0,10"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
 
-        <TextBlock Text="Role:" 
-                   Grid.Row="2" 
-                   Grid.Column="0" 
-                   VerticalAlignment="Center"
-                   Margin="0,0,10,10"/>
-        <ComboBox x:Name="RoleComboBox" 
-                  Grid.Row="2" 
-                  Grid.Column="1" 
-                  Height="30"
-                  Margin="0,0,0,10">
-            <ComboBoxItem Content="Admin"/>
-            <ComboBoxItem Content="Student"/>
-            <ComboBoxItem Content="SimpleUser"/>
-        </ComboBox>
+        <!-- Style for ComboBox -->
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Margin" Value="0,3,0,10"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
-        <TextBlock Text="Email:" 
-                   Grid.Row="3" 
-                   Grid.Column="0" 
-                   VerticalAlignment="Center"
-                   Margin="0,0,10,10"/>
-        <TextBox x:Name="EmailTextBox" 
-                 Grid.Row="3" 
-                 Grid.Column="1" 
-                 Height="30"
-                 Margin="0,0,0,10"/>
+        <!-- Style for PasswordBox -->
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="Margin" Value="0,3,0,10"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
 
-        <TextBlock Text="Password:" 
-                   Grid.Row="4" 
-                   Grid.Column="0"
-                   VerticalAlignment="Center" 
-                   Margin="0,0,10,10"/>
-        <PasswordBox x:Name="PasswordBox"
-                    Grid.Row="4"
-                    Grid.Column="1"
-                    Height="30"
-                    Margin="0,0,0,10"/>
+        <!-- Shadow Effect for the Border -->
+        <DropShadowEffect x:Key="ShadowEffect" Color="#6200EE" Direction="315" ShadowDepth="5" BlurRadius="10" Opacity="0.4"/>
+    </Window.Resources>
 
-        <TextBlock Text="Confirm:" 
-                   Grid.Row="5" 
-                   Grid.Column="0"
-                   VerticalAlignment="Center" 
-                   Margin="0,0,10,10"/>
-        <PasswordBox x:Name="ConfirmPasswordBox"
-                    Grid.Row="5"
-                    Grid.Column="1"
-                    Height="30"
-                    Margin="0,0,0,10"/>
+    <Grid Margin="18">
+        <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="25" Effect="{StaticResource ShadowEffect}">
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center">
 
-        <StackPanel Grid.Row="6" 
-                    Grid.ColumnSpan="2" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
-            <Button Content="Save" 
-                    Width="80" 
-                    Height="30"
-                    Margin="0,0,10,0" 
-                    Click="SaveButton_Click"
-                    Background="#2196F3"
-                    Foreground="White"
-                    BorderThickness="0"/>
-            <Button Content="Cancel" 
-                    Width="80" 
-                    Height="30"
-                    Click="CancelButton_Click"
-                    Background="#E0E0E0"
-                    BorderThickness="0"/>
-        </StackPanel>
+                <!-- Title of the Window -->
+                <TextBlock Text="Edit Member" FontSize="20" Foreground="#6200EE" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <!-- Username Field -->
+                <TextBlock Text="Username" FontSize="12" Foreground="#333333" Margin="0,0,0,3"/>
+                <TextBox x:Name="NameTextBox" Text="{Binding UserName}" Style="{StaticResource TextBoxStyle}" />
+
+                <!-- Position Field -->
+                <TextBlock Text="Position" FontSize="12" Foreground="#333333" Margin="0,0,0,3"/>
+                <ComboBox x:Name="RoleComboBox" Style="{StaticResource ComboBoxStyle}">
+                    <ComboBoxItem Content="Admin"/>
+                    <ComboBoxItem Content="etudiant"/>
+                    <ComboBoxItem Content="simpleuser"/>
+                </ComboBox>
+
+                <!-- Email Field -->
+                <TextBlock Text="Email" FontSize="12" Foreground="#333333" Margin="0,0,0,3"/>
+                <TextBox x:Name="EmailTextBox" Text="{Binding UserEmail}" Style="{StaticResource TextBoxStyle}" />
+
+                <!-- Password Field -->
+                <TextBlock Text="Password" FontSize="12" Foreground="#333333" Margin="0,0,0,3"/>
+                <PasswordBox x:Name="PasswordBox" Style="{StaticResource PasswordBoxStyle}" />
+
+                <!-- Confirm Password Field -->
+                <TextBlock Text="Confirm Password" FontSize="12" Foreground="#333333" Margin="0,0,0,3"/>
+                <PasswordBox x:Name="ConfirmPasswordBox" Style="{StaticResource PasswordBoxStyle}" />
+
+                <!-- Button Panel -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="Save" Style="{StaticResource ButtonStyle}" Click="SaveButton_Click" Margin="0,0,10,0"/>
+                    <Button Content="Cancel" Style="{StaticResource ButtonStyle}" Click="CancelButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window> 
