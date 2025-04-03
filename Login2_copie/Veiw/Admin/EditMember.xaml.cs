@@ -19,10 +19,17 @@ namespace DataGridNamespace.Admin
             _refreshCallback = refreshCallback;
 
             // Populate fields with user data
+            UserIdTextBox.Text = user.Id.ToString();
             NameTextBox.Text = user.Nom;
             EmailTextBox.Text = user.Email;
-            RoleComboBox.SelectedItem = RoleComboBox.Items.Cast<ComboBoxItem>()
-                .FirstOrDefault(item => item.Content.ToString() == user.Role.ToString());
+            
+            // Set the role in the ComboBox
+            var roleItem = RoleComboBox.Items.Cast<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content.ToString().ToLower() == user.Role.ToString().ToLower());
+            if (roleItem != null)
+            {
+                RoleComboBox.SelectedItem = roleItem;
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -48,25 +55,8 @@ namespace DataGridNamespace.Admin
                     return;
                 }
 
-                // Validate password match if provided
-                if (!string.IsNullOrEmpty(PasswordBox.Password) || !string.IsNullOrEmpty(ConfirmPasswordBox.Password))
-                {
-                    if (PasswordBox.Password != ConfirmPasswordBox.Password)
-                    {
-                        MessageBox.Show("Passwords do not match.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                }
-
                 string connectionString = "Server=localhost;Database=gestion_theses;User ID=root;Password=";
-                string query = "UPDATE users SET Nom = @name, Role = @role, Email = @email";
-
-                if (!string.IsNullOrEmpty(PasswordBox.Password))
-                {
-                    query += ", Password = @password";
-                }
-
-                query += " WHERE Id = @id";
+                string query = "UPDATE users SET Nom = @name, Role = @role, Email = @email WHERE Id = @id";
 
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
@@ -78,11 +68,6 @@ namespace DataGridNamespace.Admin
                         cmd.Parameters.AddWithValue("@email", EmailTextBox.Text);
                         cmd.Parameters.AddWithValue("@id", _user.Id);
 
-                        if (!string.IsNullOrEmpty(PasswordBox.Password))
-                        {
-                            cmd.Parameters.AddWithValue("@password", PasswordBox.Password);
-                        }
-
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -91,10 +76,6 @@ namespace DataGridNamespace.Admin
                 _user.Nom = NameTextBox.Text;
                 _user.Email = EmailTextBox.Text;
                 _user.Role = Enum.Parse<RoleUtilisateur>(((ComboBoxItem)RoleComboBox.SelectedItem).Content.ToString());
-                if (!string.IsNullOrEmpty(PasswordBox.Password))
-                {
-                    _user.Password = PasswordBox.Password;
-                }
 
                 // Refresh the members list if callback provided
                 _refreshCallback?.Invoke();
