@@ -7,8 +7,10 @@
         Title="Thesis Management System" Height="720" Width="1280"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
         ResizeMode="CanResize"
-        MouseDown="Window_MouseDown">
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
     
     <Window.Resources>
         <ResourceDictionary>
@@ -18,69 +20,73 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <!-- Title Bar -->
-        <Grid Grid.Row="0" Grid.ColumnSpan="2" Background="#2C3E50">
+    <Border CornerRadius="10" BorderBrush="#2C3E50" BorderThickness="2" Background="White" 
+            MouseLeftButtonDown="Border_MouseLeftButtonDown">
+        <Grid Margin="-2,0,5,-5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Window Title -->
-            <TextBlock Text="Thesis Management System" 
-                     Foreground="White" 
-                     VerticalAlignment="Center" 
-                     Margin="10,0"/>
+            <!-- Title Bar -->
+            <Grid Grid.Row="0" Grid.ColumnSpan="2" Background="#2C3E50">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Window Controls -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
-                <Button x:Name="LogoutButton"
-                        Click="LogoutButton_Click"
-                        Style="{StaticResource WindowButtonStyle}">
-                    <TextBlock Text="Logout" 
-                             Foreground="White" 
-                             Margin="5,0"/>
-                </Button>
-                <Button x:Name="MinimizeButton" 
-                        Click="MinimizeButton_Click"
-                        Style="{StaticResource WindowButtonStyle}">
-                    <Path Data="M0,0 L8,0" 
-                          Stroke="White" 
-                          StrokeThickness="1" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"/>
-                </Button>
-                <Button x:Name="CloseButton" 
-                        Click="CloseButton_Click"
-                        Style="{StaticResource WindowButtonStyle}">
-                    <Path Data="M0,0 L8,8 M0,8 L8,0" 
-                          Stroke="White" 
-                          StrokeThickness="1" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"/>
-                </Button>
-            </StackPanel>
+                <!-- Window Title -->
+                <TextBlock Text="Thesis Management System" 
+                         Foreground="White" 
+                         VerticalAlignment="Center" 
+                         Margin="10,0"/>
+
+                <!-- Window Controls -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,5,0">
+                    <Button x:Name="LogoutButton"
+                            Click="LogoutButton_Click"
+                            Style="{StaticResource WindowButtonStyle}"
+                            Margin="5,0">
+                        <TextBlock Text="Logout" 
+                                 Foreground="White" 
+                                 Margin="5,0"/>
+                    </Button>
+                    <Button x:Name="MinimizeButton" 
+                            Click="MinimizeButton_Click"
+                            Style="{StaticResource WindowButtonStyle}"
+                            Margin="5,0">
+                        <Icon:PackIconMaterial Kind="WindowMinimize" Width="15" Height="15" Foreground="White"/>
+                    </Button>
+                    <Button x:Name="MaximizeButton" 
+                            Click="MaximizeRestoreButton_Click"
+                            Style="{StaticResource WindowButtonStyle}"
+                            Margin="5,0">
+                        <Icon:PackIconMaterial Kind="WindowMaximize" Width="15" Height="15" Foreground="White"/>
+                    </Button>
+                    <Button x:Name="CloseButton" 
+                            Click="CloseButton_Click"
+                            Style="{StaticResource WindowButtonStyle}"
+                            Margin="5,0">
+                        <Icon:PackIconMaterial Kind="Close" Width="15" Height="15" Foreground="#FF0000"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- Sidebar Container -->
+            <ContentControl x:Name="SidebarContainer" 
+                           Grid.Row="1" 
+                           Grid.Column="0"/>
+
+            <!-- Main Content Area -->
+            <Frame x:Name="MainFrame" 
+                   Grid.Row="1" 
+                   Grid.Column="1"
+                   NavigationUIVisibility="Hidden"
+                   Source="/Veiw/Admin/MembersListView.xaml"/>
         </Grid>
-
-        <!-- Sidebar Container -->
-        <ContentControl x:Name="SidebarContainer" 
-                       Grid.Row="1" 
-                       Grid.Column="0"/>
-
-        <!-- Main Content Area -->
-        <Frame x:Name="MainFrame" 
-               Grid.Row="1" 
-               Grid.Column="1"
-               NavigationUIVisibility="Hidden"
-               Source="/Veiw/Admin/MembersListView.xaml"/>
-    </Grid>
+    </Border>
 </Window>

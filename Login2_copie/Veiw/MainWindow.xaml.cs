@@ -5,12 +5,14 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using DataGridNamespace.Admin;
 using MyProject;
+using MahApps.Metro.IconPacks;
 
 namespace DataGridNamespace
 {
     public partial class MainWindow : Window
     {
         private string currentUserRole;
+        private bool IsMaximize = false;
 
         public MainWindow(string userRole)
         {
@@ -44,8 +46,6 @@ namespace DataGridNamespace
         {
             try
             {
-                MessageBox.Show($"Setting up UI for role: {currentUserRole}", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-                
                 if (SidebarContainer == null)
                 {
                     MessageBox.Show("SidebarContainer is null! XAML not initialized properly.", 
@@ -56,10 +56,8 @@ namespace DataGridNamespace
                 switch (currentUserRole.ToLower())
                 {
                     case "admin":
-                        MessageBox.Show("Creating AdminSidebar...", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
                         var adminSidebar = new AdminSidebar();
                         SidebarContainer.Content = adminSidebar;
-                        MessageBox.Show("AdminSidebar set successfully", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
                         break;
                     case "student":
                         MessageBox.Show("Student sidebar coming soon!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -73,6 +71,98 @@ namespace DataGridNamespace
             {
                 MessageBox.Show($"Error in SetupUserInterface: {ex.Message}\nStack Trace: {ex.StackTrace}", 
                               "Setup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                if (IsMaximize)
+                {
+                    this.WindowState = WindowState.Normal;
+                    this.Width = 1280;
+                    this.Height = 720;
+                    IsMaximize = false;
+                }
+                else
+                {
+                    this.WindowState = WindowState.Maximized;
+                    IsMaximize = true;
+                }
+            }
+        }
+
+        private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsMaximize)
+            {
+                this.WindowState = WindowState.Normal;
+                this.Width = 1280;
+                this.Height = 720;
+                IsMaximize = false;
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+                IsMaximize = true;
+            }
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show("Are you sure you want to exit?", 
+                                           "Exit Confirmation", 
+                                           MessageBoxButton.YesNo, 
+                                           MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    Application.Current.Shutdown();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during close: {ex.Message}\nStack Trace: {ex.StackTrace}", 
+                              "Close Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show("Are you sure you want to logout?", 
+                                           "Logout Confirmation", 
+                                           MessageBoxButton.YesNo, 
+                                           MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var loginWindow = new MyProject.Login();
+                    loginWindow.Show();
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during logout: {ex.Message}\nStack Trace: {ex.StackTrace}", 
+                              "Logout Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -104,65 +194,6 @@ namespace DataGridNamespace
                               $"Type: {ex.GetType().Name}\n" +
                               $"Stack Trace: {ex.StackTrace}", 
                               "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        public void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var result = MessageBox.Show("Are you sure you want to logout?", 
-                                           "Logout Confirmation", 
-                                           MessageBoxButton.YesNo, 
-                                           MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    var loginWindow = new MyProject.Login();
-                    loginWindow.Show();
-                    this.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during logout: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Logout Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        // Window Movement
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                DragMove();
-            }
-        }
-
-        // Window Controls
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var result = MessageBox.Show("Are you sure you want to exit?", 
-                                           "Exit Confirmation", 
-                                           MessageBoxButton.YesNo, 
-                                           MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    Application.Current.Shutdown();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during close: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Close Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
