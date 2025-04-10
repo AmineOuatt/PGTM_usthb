@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:admin="clr-namespace:DataGridNamespace.Admin"
+        xmlns:etudiant="clr-namespace:DataGridNamespace.Etudiant"
         xmlns:local="clr-namespace:DataGridNamespace"
         x:Name="mainWindow"
         Title="Thesis Management System" Height="720" Width="1280"
@@ -164,49 +165,34 @@
 
                     <!-- Navigation Menu -->
                     <StackPanel DockPanel.Dock="Top" Margin="20,30,20,0">
-                        <Button x:Name="DashboardButton" Style="{StaticResource menuButton}" 
-                                Click="DashboardButton_Click" Background="Transparent" Foreground="White"
-                                Margin="0,5,0,10">
+                        <Button x:Name="DashboardButton" Style="{StaticResource menuButton}">
                             <StackPanel Orientation="Horizontal">
-                                <icon:PackIconMaterial Kind="ViewDashboardOutline"
-                                                       Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Dashboard"/>
+                                <icon:PackIconMaterial Kind="ViewDashboard" Style="{StaticResource menuButtonIcon}"/>
+                                <TextBlock Text="Dashboard" Foreground="White"/>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="ThesisButton" Style="{StaticResource menuButton}" 
-                                Click="ThesisButton_Click" Background="Transparent" Foreground="White"
-                                Margin="0,5,0,10">
+                        <Button x:Name="ThesisButton" Style="{StaticResource menuButton}">
                             <StackPanel Orientation="Horizontal">
-                                <icon:PackIconMaterial Kind="BookOpenVariant"
-                                                       Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Thesis"/>
+                                <icon:PackIconMaterial Kind="BookOpenPageVariant" Style="{StaticResource menuButtonIcon}"/>
+                                <TextBlock Text="Thesis" Foreground="White"/>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="MembersButton" Style="{StaticResource menuButton}" 
-                                Click="MembersButton_Click" Background="Transparent" Foreground="White"
-                                Margin="0,5,0,10">
+                        <Button x:Name="MembersButton" Style="{StaticResource menuButton}">
                             <StackPanel Orientation="Horizontal">
-                                <icon:PackIconMaterial Kind="AccountMultipleOutline"
-                                                       Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Members"/>
+                                <icon:PackIconMaterial Kind="AccountGroup" Style="{StaticResource menuButtonIcon}"/>
+                                <TextBlock Text="Members" Foreground="White"/>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="ProfileButton" Style="{StaticResource menuButton}" 
-                                Click="ProfileButton_Click" Background="Transparent" Foreground="White"
-                                Margin="0,5,0,10">
+                        <Button x:Name="ProfileButton" Style="{StaticResource menuButton}">
                             <StackPanel Orientation="Horizontal">
-                                <icon:PackIconMaterial Kind="AccountCircleOutline"
-                                                       Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Profile"/>
+                                <icon:PackIconMaterial Kind="Account" Style="{StaticResource menuButtonIcon}"/>
+                                <TextBlock Text="Profile" Foreground="White"/>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="FavoritesButton" Style="{StaticResource menuButton}" 
-                                Click="FavoritesButton_Click" Background="Transparent" Foreground="White"
-                                Margin="0,5,0,10">
+                        <Button x:Name="FavoritesButton" Style="{StaticResource menuButton}">
                             <StackPanel Orientation="Horizontal">
-                                <icon:PackIconMaterial Kind="HeartOutline"
-                                                       Style="{StaticResource menuButtonIcon}"/>
-                                <TextBlock Text="Favorite"/>
+                                <icon:PackIconMaterial Kind="Heart" Style="{StaticResource menuButtonIcon}"/>
+                                <TextBlock Text="Favorites" Foreground="White"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

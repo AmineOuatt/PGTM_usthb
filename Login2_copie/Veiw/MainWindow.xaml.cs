@@ -10,20 +10,22 @@ using DataGrid;
 using System.Collections.ObjectModel;
 using System.Linq;
 using UserModels;
+using DataGridNamespace.SimpleUser;
+using DataGridNamespace.Etudiant;
+using ThesesModels;
+using FavorisModels;
 
 namespace DataGridNamespace
 {
     public partial class MainWindow : Window
     {
-        private string userRole;
+        private User currentUser;
         private bool IsMaximize = false;
-        private ObservableCollection<Member> members;
 
-        public MainWindow(string role)
+        public MainWindow(User user)
         {
             InitializeComponent();
-            userRole = role;
-            members = new ObservableCollection<Member>();
+            currentUser = user;
             
             // Set window to maximize on startup
             this.WindowState = WindowState.Maximized;
@@ -34,20 +36,19 @@ namespace DataGridNamespace
 
         private void LoadRoleSpecificContent()
         {
-            switch (userRole.ToLower())
+            switch (currentUser.Role)
             {
-                case "admin":
+                case RoleUtilisateur.Admin:
                     LoadAdminContent();
                     break;
-                case "simple user":
+                case RoleUtilisateur.SimpleUser:
                     LoadSimpleUserContent();
                     break;
-                case "student":
-                    LoadStudentContent();
+                case RoleUtilisateur.Etudiant:
+                    LoadEtudiantContent();
                     break;
                 default:
-                    MessageBox.Show("Unknown role. Defaulting to admin view.");
-                    LoadAdminContent();
+                    LoadSimpleUserContent();
                     break;
             }
         }
@@ -87,41 +88,30 @@ namespace DataGridNamespace
             }
         }
 
-        private void LoadMembersData()
-        {
-            try
-            {
-                // TODO: Load members from database
-                // For now, using sample data
-                members.Clear();
-                members.Add(new Member { Id = 1, Name = "Admin User", Role = "Admin", Email = "admin@example.com" });
-                members.Add(new Member { Id = 2, Name = "Student User", Role = "Student", Email = "student@example.com" });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading members: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void LoadSimpleUserContent()
         {
             try
             {
-                // Hide admin-specific buttons
+                // Hide all buttons first
+                DashboardButton.Visibility = Visibility.Collapsed;
                 MembersButton.Visibility = Visibility.Collapsed;
-                DashboardButton.Visibility = Visibility.Visible;
+                
+                // Show only simple user specific buttons
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
 
-                // Set initial view to dashboard
-                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                // Set initial view to profile
+                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
                 
                 // Set up user-specific event handlers
-                DashboardButton.Click += DashboardButton_Click;
                 ThesisButton.Click += ThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
+
+                // Load profile view by default
+                var profileView = new ProfileView();
+                MainFrame.Navigate(profileView);
             }
             catch (Exception ex)
             {
@@ -129,62 +119,35 @@ namespace DataGridNamespace
             }
         }
 
-        private void LoadStudentContent()
+        private void LoadEtudiantContent()
         {
             try
             {
-                // Hide admin-specific buttons
+                // Hide all buttons first
+                DashboardButton.Visibility = Visibility.Collapsed;
                 MembersButton.Visibility = Visibility.Collapsed;
-                DashboardButton.Visibility = Visibility.Visible;
+                
+                // Show only etudiant specific buttons
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
 
-                // Set initial view to dashboard
-                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                // Set initial view to profile
+                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
                 
-                // Set up student-specific event handlers
-                DashboardButton.Click += DashboardButton_Click;
-                ThesisButton.Click += ThesisButton_Click;
+                // Set up etudiant-specific event handlers
+                ThesisButton.Click += EtudiantThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
-                FavoritesButton.Click += FavoritesButton_Click;
+                FavoritesButton.Click += EtudiantFavoritesButton_Click;
+
+                // Load profile view by default
+                var profileView = new ProfileView();
+                MainFrame.Navigate(profileView);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading student content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading etudiant content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void AddMemberButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // Create a new user for editing
-                var newUser = new User
-                {
-                    Id = 0, // New user
-                    Nom = "",
-                    Role = RoleUtilisateur.SimpleUser,
-                    Email = ""
-                };
-
-                var editMemberWindow = new EditMember(newUser, () =>
-                {
-                    // Handle the updated user
-                    LoadMembersData();
-                });
-
-                editMemberWindow.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error adding member: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            LoadMembersData();
         }
 
         private void DashboardButton_Click(object sender, RoutedEventArgs e)
@@ -206,30 +169,15 @@ namespace DataGridNamespace
             }
         }
 
-        private void LoadDashboardData()
-        {
-            try
-            {
-                // TODO: Load dashboard statistics and data
-                // This will be implemented based on your specific requirements
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading dashboard data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private void ThesisButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
                 
-                var thesisView = new ThesisView();
+                var thesisView = new SimpleUserThesisView();
                 MainFrame.Navigate(thesisView);
             }
             catch (Exception ex)
@@ -262,9 +210,7 @@ namespace DataGridNamespace
             try
             {
                 ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
                 ThesisButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
                 
                 var profileView = new ProfileView();
@@ -281,12 +227,44 @@ namespace DataGridNamespace
             try
             {
                 FavoritesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
                 ThesisButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 
-                var favoritesView = new FavoritesView();
+                var favoritesView = new SimpleUserFavoritesView();
+                MainFrame.Navigate(favoritesView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Favorites view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void EtudiantThesisButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                
+                var thesisView = new EtudiantThesisView();
+                MainFrame.Navigate(thesisView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Thesis view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void EtudiantFavoritesButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FavoritesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                ThesisButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                
+                var favoritesView = new EtudiantFavoritesView();
                 MainFrame.Navigate(favoritesView);
             }
             catch (Exception ex)
@@ -357,12 +335,5 @@ namespace DataGridNamespace
             }
         }
     }
-
-    public class Member
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public string Email { get; set; }
-    }
 }
+

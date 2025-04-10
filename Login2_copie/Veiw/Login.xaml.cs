@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using UserModels;
+using ThesesModels;
+using FavorisModels;
 
 namespace MyProject
 {
@@ -23,8 +27,50 @@ namespace MyProject
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.ChangedButton == MouseButton.Left)
+            {
                 this.DragMove();
+            }
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                MaximizeRestoreButton_Click(sender, e);
+            }
+        }
+
+        private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+                this.Width = 1280;
+                this.Height = 720;
+            }
+            else
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to exit?", 
+                                       "Exit Confirmation", 
+                                       MessageBoxButton.YesNo, 
+                                       MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();
+            }
         }
 
         private void GoToLayout2_Click(object sender, RoutedEventArgs e)
@@ -93,12 +139,28 @@ namespace MyProject
                                 int count = reader.GetInt32(0);
                                 if (count > 0)
                                 {
-                                    string role = reader.IsDBNull(1) ? "" : reader.GetString(1);
-                                    MessageBox.Show("مرحبا بك! تم تسجيل الدخول بنجاح.");
-                                    // Open MainWindow instead of DashboardView
-                                    MainWindow mainWindow = new MainWindow(role);
-                                    mainWindow.Show();
-                                    this.Close();
+                                    string roleStr = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                                    RoleUtilisateur role;
+                                    if (Enum.TryParse(roleStr, true, out role))
+                                    {
+                                        MessageBox.Show("مرحبا بك! تم تسجيل الدخول بنجاح.");
+                                        // Open MainWindow instead of DashboardView
+                                        var user = new User
+                                        {
+                                            Id = 1,
+                                            Nom = txtUser_L1.Text,
+                                            Email = txtUser_L1.Text, // Assuming email is the same as username
+                                            Password = txtPassword_L1.Password,
+                                            Role = role
+                                        };
+                                        MainWindow mainWindow = new MainWindow(user);
+                                        mainWindow.Show();
+                                        this.Close();
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Invalid role in database.");
+                                    }
                                 }
                                 else
                                 {
