@@ -33,7 +33,7 @@
         <!-- Navigation Menu -->
         <StackPanel Grid.Row="1" Margin="10">
             <Button Style="{StaticResource menuButton}" 
-                    Click="MembersManagementButton_Click">
+                    Click="OnMembersManagementButton_Click">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="👥" 
                              Style="{StaticResource menuButtonIcon}"/>

@@ -7,6 +7,8 @@ namespace DataGridNamespace.Admin
 {
     public partial class AdminSidebar : UserControl
     {
+        public event RoutedEventHandler MembersManagementButton_Click;
+
         public AdminSidebar()
         {
             try
@@ -20,22 +22,11 @@ namespace DataGridNamespace.Admin
             }
         }
 
-        private void MembersManagementButton_Click(object sender, RoutedEventArgs e)
+        private void OnMembersManagementButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var mainWindow = Window.GetWindow(this) as MainWindow;
-                if (mainWindow != null)
-                {
-                    MessageBox.Show("Found MainWindow, attempting navigation...", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-                    mainWindow.NavigateToMembersManagement();
-                }
-                else
-                {
-                    MessageBox.Show("Could not find the main window. Current window type: " + 
-                                  (Window.GetWindow(this)?.GetType().Name ?? "null"), 
-                                  "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MembersManagementButton_Click?.Invoke(sender, e);
             }
             catch (Exception ex)
             {

@@ -2,79 +2,312 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using DataGridNamespace.Admin;
 using MyProject;
-using MahApps.Metro.IconPacks;
+using DataGrid;
+using System.Collections.ObjectModel;
+using System.Linq;
+using UserModels;
 
 namespace DataGridNamespace
 {
     public partial class MainWindow : Window
     {
-        private string currentUserRole;
+        private string userRole;
         private bool IsMaximize = false;
+        private ObservableCollection<Member> members;
 
-        public MainWindow(string userRole)
+        public MainWindow(string role)
+        {
+            InitializeComponent();
+            userRole = role;
+            members = new ObservableCollection<Member>();
+            
+            // Set window to maximize on startup
+            this.WindowState = WindowState.Maximized;
+            IsMaximize = true;
+            
+            LoadRoleSpecificContent();
+        }
+
+        private void LoadRoleSpecificContent()
+        {
+            switch (userRole.ToLower())
+            {
+                case "admin":
+                    LoadAdminContent();
+                    break;
+                case "simple user":
+                    LoadSimpleUserContent();
+                    break;
+                case "student":
+                    LoadStudentContent();
+                    break;
+                default:
+                    MessageBox.Show("Unknown role. Defaulting to admin view.");
+                    LoadAdminContent();
+                    break;
+            }
+        }
+
+        private void LoadAdminContent()
         {
             try
             {
-                InitializeComponent();
-                currentUserRole = userRole;
-                SetupUserInterface();
+                // Show admin-specific buttons
+                MembersButton.Visibility = Visibility.Visible;
+                DashboardButton.Visibility = Visibility.Visible;
+                ThesisButton.Visibility = Visibility.Visible;
+                ProfileButton.Visibility = Visibility.Visible;
+                FavoritesButton.Visibility = Visibility.Visible;
+
+                // Set initial view to dashboard
+                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                ThesisButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
                 
-                if (currentUserRole.ToLower() == "admin")
-                {
-                    Dispatcher.BeginInvoke(new Action(() => {
-                        try {
-                            var membersView = new MembersListView();
-                            MainFrame.Content = membersView;
-                        }
-                        catch (Exception ex) {
-                            MessageBox.Show($"Navigation error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }));
-                }
+                // Load dashboard view by default
+                var dashboardView = new DashboardView();
+                MainFrame.Navigate(dashboardView);
+
+                // Set up admin-specific event handlers
+                DashboardButton.Click += DashboardButton_Click;
+                ThesisButton.Click += ThesisButton_Click;
+                MembersButton.Click += MembersButton_Click;
+                ProfileButton.Click += ProfileButton_Click;
+                FavoritesButton.Click += FavoritesButton_Click;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error initializing MainWindow: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading admin content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void SetupUserInterface()
+        private void LoadMembersData()
         {
             try
             {
-                if (SidebarContainer == null)
-                {
-                    MessageBox.Show("SidebarContainer is null! XAML not initialized properly.", 
-                                  "Critical Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                switch (currentUserRole.ToLower())
-                {
-                    case "admin":
-                        var adminSidebar = new AdminSidebar();
-                        SidebarContainer.Content = adminSidebar;
-                        break;
-                    case "student":
-                        MessageBox.Show("Student sidebar coming soon!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
-                    case "simpleuser":
-                        MessageBox.Show("Simple User sidebar coming soon!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-                        break;
-                }
+                // TODO: Load members from database
+                // For now, using sample data
+                members.Clear();
+                members.Add(new Member { Id = 1, Name = "Admin User", Role = "Admin", Email = "admin@example.com" });
+                members.Add(new Member { Id = 2, Name = "Student User", Role = "Student", Email = "student@example.com" });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error in SetupUserInterface: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Setup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error loading members: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void LoadSimpleUserContent()
+        {
+            try
+            {
+                // Hide admin-specific buttons
+                MembersButton.Visibility = Visibility.Collapsed;
+                DashboardButton.Visibility = Visibility.Visible;
+                ThesisButton.Visibility = Visibility.Visible;
+                ProfileButton.Visibility = Visibility.Visible;
+                FavoritesButton.Visibility = Visibility.Visible;
+
+                // Set initial view to dashboard
+                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                
+                // Set up user-specific event handlers
+                DashboardButton.Click += DashboardButton_Click;
+                ThesisButton.Click += ThesisButton_Click;
+                ProfileButton.Click += ProfileButton_Click;
+                FavoritesButton.Click += FavoritesButton_Click;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading simple user content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadStudentContent()
+        {
+            try
+            {
+                // Hide admin-specific buttons
+                MembersButton.Visibility = Visibility.Collapsed;
+                DashboardButton.Visibility = Visibility.Visible;
+                ThesisButton.Visibility = Visibility.Visible;
+                ProfileButton.Visibility = Visibility.Visible;
+                FavoritesButton.Visibility = Visibility.Visible;
+
+                // Set initial view to dashboard
+                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                
+                // Set up student-specific event handlers
+                DashboardButton.Click += DashboardButton_Click;
+                ThesisButton.Click += ThesisButton_Click;
+                ProfileButton.Click += ProfileButton_Click;
+                FavoritesButton.Click += FavoritesButton_Click;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading student content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddMemberButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Create a new user for editing
+                var newUser = new User
+                {
+                    Id = 0, // New user
+                    Nom = "",
+                    Role = RoleUtilisateur.SimpleUser,
+                    Email = ""
+                };
+
+                var editMemberWindow = new EditMember(newUser, () =>
+                {
+                    // Handle the updated user
+                    LoadMembersData();
+                });
+
+                editMemberWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding member: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            LoadMembersData();
+        }
+
+        private void DashboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                ThesisButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                
+                var dashboardView = new DashboardView();
+                MainFrame.Navigate(dashboardView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Dashboard view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadDashboardData()
+        {
+            try
+            {
+                // TODO: Load dashboard statistics and data
+                // This will be implemented based on your specific requirements
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading dashboard data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ThesisButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                DashboardButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                
+                var thesisView = new ThesisView();
+                MainFrame.Navigate(thesisView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Thesis view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MembersButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MembersButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                DashboardButton.Background = Brushes.Transparent;
+                ThesisButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                
+                var membersView = new MembersListView();
+                MainFrame.Navigate(membersView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Members view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                DashboardButton.Background = Brushes.Transparent;
+                ThesisButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                
+                var profileView = new ProfileView();
+                MainFrame.Navigate(profileView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Profile view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void FavoritesButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                FavoritesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                DashboardButton.Background = Brushes.Transparent;
+                ThesisButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                
+                var favoritesView = new FavoritesView();
+                MainFrame.Navigate(favoritesView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading Favorites view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            LogoutConfirmationWindow confirmWindow = new LogoutConfirmationWindow();
+            bool? result = confirmWindow.ShowDialog();
+            if (result == true && confirmWindow.IsConfirmed)
+            {
+                Login loginWindow = new Login();
+                loginWindow.Show();
+                this.Close();
+            }
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
@@ -86,18 +319,7 @@ namespace DataGridNamespace
         {
             if (e.ClickCount == 2)
             {
-                if (IsMaximize)
-                {
-                    this.WindowState = WindowState.Normal;
-                    this.Width = 1280;
-                    this.Height = 720;
-                    IsMaximize = false;
-                }
-                else
-                {
-                    this.WindowState = WindowState.Maximized;
-                    IsMaximize = true;
-                }
+                MaximizeRestoreButton_Click(sender, e);
             }
         }
 
@@ -124,77 +346,23 @@ namespace DataGridNamespace
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var result = MessageBox.Show("Are you sure you want to exit?", 
-                                           "Exit Confirmation", 
-                                           MessageBoxButton.YesNo, 
-                                           MessageBoxImage.Question);
+            var result = MessageBox.Show("Are you sure you want to exit?", 
+                                       "Exit Confirmation", 
+                                       MessageBoxButton.YesNo, 
+                                       MessageBoxImage.Question);
 
-                if (result == MessageBoxResult.Yes)
-                {
-                    Application.Current.Shutdown();
-                }
-            }
-            catch (Exception ex)
+            if (result == MessageBoxResult.Yes)
             {
-                MessageBox.Show($"Error during close: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Close Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
             }
         }
+    }
 
-        public void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var result = MessageBox.Show("Are you sure you want to logout?", 
-                                           "Logout Confirmation", 
-                                           MessageBoxButton.YesNo, 
-                                           MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    var loginWindow = new MyProject.Login();
-                    loginWindow.Show();
-                    this.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during logout: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Logout Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        public void NavigateToMembersManagement()
-        {
-            try
-            {
-                MessageBox.Show("Starting navigation to Members Management...", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-                
-                if (MainFrame == null)
-                {
-                    MessageBox.Show("MainFrame is null! This means the XAML is not properly initialized.", 
-                                  "Critical Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                MessageBox.Show("Creating MembersListView...", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-                var membersView = new MembersListView();
-                
-                MessageBox.Show("Navigating to MembersListView...", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-                MainFrame.Navigate(membersView);
-                
-                MessageBox.Show("Navigation completed successfully.", "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in NavigateToMembersManagement:\n" +
-                              $"Message: {ex.Message}\n" +
-                              $"Type: {ex.GetType().Name}\n" +
-                              $"Stack Trace: {ex.StackTrace}", 
-                              "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+    public class Member
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Role { get; set; }
+        public string Email { get; set; }
     }
 }

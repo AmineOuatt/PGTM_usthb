@@ -95,9 +95,9 @@ namespace MyProject
                                 {
                                     string role = reader.IsDBNull(1) ? "" : reader.GetString(1);
                                     MessageBox.Show("مرحبا بك! تم تسجيل الدخول بنجاح.");
-                                    // بعد نجاح تسجيل الدخول يتم فتح نافذة الداشبورد
-                                    DashboardView dashboard = new DashboardView();
-                                    dashboard.Show();
+                                    // Open MainWindow instead of DashboardView
+                                    MainWindow mainWindow = new MainWindow(role);
+                                    mainWindow.Show();
                                     this.Close();
                                 }
                                 else

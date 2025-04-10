@@ -1,106 +1,162 @@
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using DataGridNamespace;
-using MyProject;
-using DataGridNamespace.Admin;
+using System;
+using System.Collections.ObjectModel;
+using System.Windows.Controls;
+using MySql.Data.MySqlClient;
 
-namespace DataGrid
+namespace DataGridNamespace.Admin
 {
-    public partial class DashboardView : Window
+    public partial class DashboardView : UserControl
     {
+        private ObservableCollection<RecentThesis> recentTheses;
+        private ObservableCollection<Activity> recentActivities;
+
         public DashboardView()
         {
             InitializeComponent();
+            LoadDashboardData();
         }
 
-        // السماح بسحب النافذة عند النقر على الحافة الخارجية
-        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void LoadDashboardData()
         {
-            DragMove();
-        }
-        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-                DragMove();
-        }
-
-        // زر Dashboard
-        private void DashboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-            ThesisButton.Background = Brushes.Transparent;
-            MembersButton.Background = Brushes.Transparent;
-            ProfileButton.Background = Brushes.Transparent;
-            FavoritesButton.Background = Brushes.Transparent;
-            MainFrame.Content = null;
-        }
-
-        // زر Thesis
-        private void ThesisButton_Click(object sender, RoutedEventArgs e)
-        {
-            ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-            DashboardButton.Background = Brushes.Transparent;
-            MembersButton.Background = Brushes.Transparent;
-            ProfileButton.Background = Brushes.Transparent;
-            FavoritesButton.Background = Brushes.Transparent;
-            MainFrame.Content = null;
-        }
-
-        // زر Members
-        private void MembersButton_Click(object sender, RoutedEventArgs e)
-        {
-            MembersButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-            DashboardButton.Background = Brushes.Transparent;
-            ThesisButton.Background = Brushes.Transparent;
-            ProfileButton.Background = Brushes.Transparent;
-            FavoritesButton.Background = Brushes.Transparent;
-            MainFrame.Navigate(new MembersListView());
-        }
-
-        // زر Profile
-        private void ProfileButton_Click(object sender, RoutedEventArgs e)
-        {
-            ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-            DashboardButton.Background = Brushes.Transparent;
-            ThesisButton.Background = Brushes.Transparent;
-            MembersButton.Background = Brushes.Transparent;
-            FavoritesButton.Background = Brushes.Transparent;
-            MainFrame.Navigate(new ProfileView());
-        }
-
-        // زر Logout في الشريط الجانبي
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            LogoutConfirmationWindow confirmWindow = new LogoutConfirmationWindow();
-            bool? result = confirmWindow.ShowDialog();
-            if (result == true && confirmWindow.IsConfirmed)
+            try
             {
-                Login loginWindow = new Login();
-                loginWindow.Show();
-                this.Close();
+                LoadStatistics();
+                LoadRecentTheses();
+                LoadRecentActivities();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Error loading dashboard data: {ex.Message}", 
+                    "Error", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
-        // زر التصغير
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        private void LoadStatistics()
         {
-            this.WindowState = WindowState.Minimized;
+            string connectionString = "Server=localhost;Database=gestion_theses;User ID=root;Password=";
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // Get total users
+                using (MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM users", conn))
+                {
+                    int totalUsers = Convert.ToInt32(cmd.ExecuteScalar());
+                    TotalUsersText.Text = totalUsers.ToString();
+                }
+
+                // Get total theses
+                using (MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM theses", conn))
+                {
+                    int totalTheses = Convert.ToInt32(cmd.ExecuteScalar());
+                    TotalThesesText.Text = totalTheses.ToString();
+                }
+
+                // Get active projects (showing total theses for now)
+                using (MySqlCommand cmd = new MySqlCommand("SELECT COUNT(*) FROM theses", conn))
+                {
+                    int activeProjects = Convert.ToInt32(cmd.ExecuteScalar());
+                    ActiveProjectsText.Text = activeProjects.ToString();
+                }
+            }
         }
 
-        // زر التكبير/استعادة الحجم
-        private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+        private void LoadRecentTheses()
         {
-            if (this.WindowState == WindowState.Maximized)
-                this.WindowState = WindowState.Normal;
-            else
-                this.WindowState = WindowState.Maximized;
+            recentTheses = new ObservableCollection<RecentThesis>();
+            string connectionString = "Server=localhost;Database=gestion_theses;User ID=root;Password=";
+            
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"SELECT title, author, submission_date 
+                               FROM theses 
+                               ORDER BY submission_date DESC 
+                               LIMIT 5";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            recentTheses.Add(new RecentThesis
+                            {
+                                Title = reader.GetString("title"),
+                                Author = reader.GetString("author"),
+                                Date = reader.GetDateTime("submission_date").ToString("MMM dd, yyyy")
+                            });
+                        }
+                    }
+                }
+            }
+
+            RecentThesesList.ItemsSource = recentTheses;
         }
 
-        // زر الإغلاق
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private void LoadRecentActivities()
         {
-            this.Close();
+            recentActivities = new ObservableCollection<Activity>();
+            string connectionString = "Server=localhost;Database=gestion_theses;User ID=root;Password=";
+            
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                string query = @"SELECT action_type, description, created_at 
+                               FROM activity_log 
+                               ORDER BY created_at DESC 
+                               LIMIT 5";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                {
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            recentActivities.Add(new Activity
+                            {
+                                Action = reader.GetString("action_type"),
+                                Description = reader.GetString("description"),
+                                Time = reader.GetDateTime("created_at").ToString("HH:mm"),
+                                Icon = GetActivityIcon(reader.GetString("action_type"))
+                            });
+                        }
+                    }
+                }
+            }
+
+            RecentActivitiesList.ItemsSource = recentActivities;
         }
+
+        private string GetActivityIcon(string actionType)
+        {
+            return actionType.ToLower() switch
+            {
+                "login" => "Login",
+                "logout" => "Logout",
+                "add_thesis" => "BookPlus",
+                "update_thesis" => "BookEdit",
+                "delete_thesis" => "BookRemove",
+                "add_user" => "AccountPlus",
+                "update_user" => "AccountEdit",
+                "delete_user" => "AccountRemove",
+                _ => "Information"
+            };
+        }
+    }
+
+    public class RecentThesis
+    {
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public string Date { get; set; }
+    }
+
+    public class Activity
+    {
+        public string Action { get; set; }
+        public string Description { get; set; }
+        public string Time { get; set; }
+        public string Icon { get; set; }
     }
 }
