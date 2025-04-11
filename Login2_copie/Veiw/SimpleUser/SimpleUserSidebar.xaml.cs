@@ -3,36 +3,33 @@ using System.Windows;
 using System.Windows.Controls;
 using DataGridNamespace;
 
-namespace DataGridNamespace.Admin
+namespace DataGridNamespace.SimpleUser
 {
-    public partial class AdminSidebar : UserControl
+    public partial class SimpleUserSidebar : UserControl
     {
-        public event RoutedEventHandler MembersManagementButton_Click;
+        public event RoutedEventHandler ThesisButton_Click;
+        public event RoutedEventHandler FavoritesButton_Click;
+        public event RoutedEventHandler ProfileButton_Click;
 
-        public AdminSidebar()
+        public SimpleUserSidebar()
         {
             try
             {
                 InitializeComponent();
+                SetupEventHandlers();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error initializing AdminSidebar: {ex.Message}\nStack Trace: {ex.StackTrace}", 
+                MessageBox.Show($"Error initializing SimpleUserSidebar: {ex.Message}\nStack Trace: {ex.StackTrace}", 
                               "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void OnMembersManagementButton_Click(object sender, RoutedEventArgs e)
+        private void SetupEventHandlers()
         {
-            try
-            {
-                MembersManagementButton_Click?.Invoke(sender, e);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in MembersManagementButton_Click: {ex.Message}\nStack Trace: {ex.StackTrace}", 
-                              "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ThesisButton.Click += (s, e) => ThesisButton_Click?.Invoke(s, e);
+            FavoritesButton.Click += (s, e) => FavoritesButton_Click?.Invoke(s, e);
+            ProfileButton.Click += (s, e) => ProfileButton_Click?.Invoke(s, e);
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
