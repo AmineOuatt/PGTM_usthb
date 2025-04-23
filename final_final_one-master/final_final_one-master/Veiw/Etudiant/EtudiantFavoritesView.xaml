@@ -1,0 +1,11 @@
+<Page x:Class="DataGridNamespace.Etudiant.EtudiantFavoritesView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Student Favorites">
+    <Grid>
+        <TextBlock Text="Student Favorites View (Placeholder)" 
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Center"
+                  FontSize="20"/>
+    </Grid>
+</Page> 
