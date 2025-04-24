@@ -28,7 +28,7 @@ namespace MyProject
             InitializeComponent();
         }
 
-              private void CloseImage_MouseUp(object sender, MouseButtonEventArgs e)
+        private void CloseImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Application.Current.Shutdown();
         }
@@ -232,7 +232,7 @@ namespace MyProject
                 Cursor = Cursors.Arrow;
             }
         }
-        
+
 
         // Layout2 Events
         private void textUser_L2_MouseDown(object sender, MouseButtonEventArgs e)
@@ -272,8 +272,23 @@ namespace MyProject
         }
 
         // Sign Up button in Layout2
+        // Sign Up button in Layout2
         private async void SignUp_L2_Click(object sender, RoutedEventArgs e)
         {
+            string role = ((ComboBoxItem)roleCombo_L2.SelectedItem).Content.ToString();
+            string email = txtEmail_L2.Text;
+
+            if (!EmailIsValidForRole(role, email))
+            {
+                MessageBox.Show("For a student account, you must use an email in the form: utilisateur@etu.usthb.dz",
+                                "Registration Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;    
+            }
+
+
+
+
+
             if (string.IsNullOrEmpty(txtUser_L2.Text))
             {
                 MessageBox.Show("Please enter a username.", "Registration Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -304,7 +319,6 @@ namespace MyProject
                 Cursor = Cursors.Wait;
 
                 string username = txtUser_L2.Text;
-                string email = txtEmail_L2.Text;
                 string password = txtPassword_L2.Password;
 
                 string checkQuery = "SELECT COUNT(*) FROM users WHERE email = @Email";
@@ -399,7 +413,12 @@ namespace MyProject
             {
                 Cursor = Cursors.Arrow;
             }
+            
+
         }
+
+
+
 
         private async Task<FirebaseAuthResponse> SignInWithFirebase(string email, string password)
         {
@@ -608,5 +627,28 @@ namespace MyProject
             public bool EmailVerified { get; set; }
             public string Email { get; set; }
         }
+
+    
+        private static bool EmailIsValidForRole(string role, string email)
+        {
+            if (!string.Equals(role?.Trim(), "Etudiant", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            email = email.Trim();                             
+
+            const string pattern = @"^[A-Za-z0-9._%+-]+@etu\.usthb\.dz$";
+
+            return Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
+        }
+
+
+
+
+
+
+
     }
 }
