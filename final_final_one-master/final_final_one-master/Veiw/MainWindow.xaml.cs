@@ -186,6 +186,7 @@ namespace DataGridNamespace
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
+                MyThesesButton.Visibility = Visibility.Visible;
 
                 // Set initial view to dashboard
                 DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
@@ -193,6 +194,7 @@ namespace DataGridNamespace
                 MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 // Load dashboard view by default
                 var dashboardView = new DashboardView();
@@ -204,6 +206,7 @@ namespace DataGridNamespace
                 MembersButton.Click += MembersButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
+                MyThesesButton.Click += MyThesesButton_Click;
             }
             catch (Exception ex)
             {
@@ -211,19 +214,17 @@ namespace DataGridNamespace
             }
         }
 
-        // Remaining code unchanged...
         private void LoadSimpleUserContent()
         {
             try
             {
-                // Hide all buttons first
-                DashboardButton.Visibility = Visibility.Collapsed;
-                MembersButton.Visibility = Visibility.Collapsed;
-                
-                // Show only simple user specific buttons
+                // Show simple user-specific buttons
+                DashboardButton.Visibility = Visibility.Visible;
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
+                MyThesesButton.Visibility = Visibility.Collapsed;
+                MembersButton.Visibility = Visibility.Collapsed;
 
                 // Set initial view to profile
                 ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
@@ -232,6 +233,7 @@ namespace DataGridNamespace
                 ThesisButton.Click += ThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
+                MyThesesButton.Click += MyThesesButton_Click;
 
                 // Load profile view by default
                 var profileView = new ProfileView();
@@ -247,22 +249,26 @@ namespace DataGridNamespace
         {
             try
             {
-                // Hide all buttons first
-                DashboardButton.Visibility = Visibility.Collapsed;
-                MembersButton.Visibility = Visibility.Collapsed;
-                
-                // Show only etudiant specific buttons
+                // Show etudiant-specific buttons
+                DashboardButton.Visibility = Visibility.Visible;
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
+                MyThesesButton.Visibility = Visibility.Visible;
+                MembersButton.Visibility = Visibility.Collapsed;
 
-                // Set initial view to profile
-                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                // Set initial view to dashboard
+                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                ThesisButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 // Set up etudiant-specific event handlers
                 ThesisButton.Click += ThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
+                MyThesesButton.Click += MyThesesButton_Click;
 
                 // Load profile view by default
                 var profileView = new ProfileView();
@@ -283,6 +289,7 @@ namespace DataGridNamespace
                 MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 var dashboardView = new DashboardView();
                 MainFrame.Navigate(dashboardView);
@@ -302,6 +309,7 @@ namespace DataGridNamespace
                 MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 // Load thesis view based on user role
                 if (currentUser.Role == RoleUtilisateur.Admin)
@@ -331,6 +339,7 @@ namespace DataGridNamespace
                 ThesisButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 var membersView = new MembersListView();
                 MainFrame.Navigate(membersView);
@@ -348,6 +357,7 @@ namespace DataGridNamespace
                 ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
                 ThesisButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 var profileView = new ProfileView();
                 MainFrame.Navigate(profileView);
@@ -367,6 +377,7 @@ namespace DataGridNamespace
                 ThesisButton.Background = Brushes.Transparent;
                 MembersButton.Background = Brushes.Transparent;
                 ProfileButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = Brushes.Transparent;
                 
                 // Load favorites view based on user role
                 var favoritesView = new Admin.FavoritesView();
@@ -375,6 +386,28 @@ namespace DataGridNamespace
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading Favorites view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void MyThesesButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Reset all button backgrounds
+                DashboardButton.Background = Brushes.Transparent;
+                ThesisButton.Background = Brushes.Transparent;
+                MembersButton.Background = Brushes.Transparent;
+                ProfileButton.Background = Brushes.Transparent;
+                FavoritesButton.Background = Brushes.Transparent;
+                MyThesesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+
+                // Navigate to My Theses view within MainWindow
+                var myThesesView = new MyThesesWindow();
+                MainFrame.Navigate(myThesesView);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading My Theses: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

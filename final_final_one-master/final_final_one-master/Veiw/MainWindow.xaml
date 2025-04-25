@@ -202,15 +202,23 @@
                 </StackPanel>
               </Button>
 
-                    <!-- Favorite -->
-                            <Button x:Name="FavoritesButton" Style="{StaticResource menuButton}" Click="FavoritesButton_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <Icon:PackIconMaterial Kind="HeartOutline" Style="{StaticResource menuButtonIcon}"/>
-                                    <TextBlock Text="Favorie"/>
-                                </StackPanel>
-                            </Button>
+              <!-- My Theses -->
+              <Button x:Name="MyThesesButton" Style="{StaticResource menuButton}" Click="MyThesesButton_Click">
+                <StackPanel Orientation="Horizontal">
+                  <Icon:PackIconMaterial Kind="BookMultipleOutline" Style="{StaticResource menuButtonIcon}"/>
+                  <TextBlock Text="My Theses"/>
+                </StackPanel>
+              </Button>
 
-                            <!-- Members -->
+              <!-- Favorite -->
+              <Button x:Name="FavoritesButton" Style="{StaticResource menuButton}" Click="FavoritesButton_Click">
+                <StackPanel Orientation="Horizontal">
+                  <Icon:PackIconMaterial Kind="HeartOutline" Style="{StaticResource menuButtonIcon}"/>
+                  <TextBlock Text="Favorie"/>
+                </StackPanel>
+              </Button>
+
+              <!-- Members -->
               <Button x:Name="MembersButton" Style="{StaticResource menuButton}" Click="MembersButton_Click">
                 <StackPanel Orientation="Horizontal">
                   <Icon:PackIconMaterial Kind="AccountMultipleOutline" Style="{StaticResource menuButtonIcon}"/>
