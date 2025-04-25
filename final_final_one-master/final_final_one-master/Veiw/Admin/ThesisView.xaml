@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="DataGridNamespace.Admin.ThesisView"
+<UserControl x:Class="DataGridNamespace.Admin.ThesisView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -201,8 +201,8 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Role to Visibility Converter -->
-        <local:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter"/>
+        <!-- Material Icons Font -->
+        <FontFamily x:Key="MaterialIconsFont">/DataGridNamespace;component/Fonts/MaterialIcons-Regular.ttf#Material Icons</FontFamily>
     </UserControl.Resources>
 
     <Grid>
@@ -222,19 +222,19 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <!-- Title -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
                         <TextBlock Text="Thesis Management" FontSize="24" FontWeight="SemiBold" Foreground="White"/>
                         <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="14" Foreground="#E0E0E0" VerticalAlignment="Center" Margin="10,5,0,0"/>
                     </StackPanel>
-                    
+
                     <!-- Refresh Button -->
                     <Button Grid.Column="1" x:Name="RefreshButton" 
                             Style="{StaticResource ActionButtonStyle}"
                             Content="Refresh" Margin="0,0,10,0"
                             Click="RefreshButton_Click"/>
-                    
+
                     <!-- Add Thesis Button -->
                     <Button Grid.Column="2" x:Name="AddThesisButton" 
                             Style="{StaticResource AddButtonStyle}"
@@ -316,6 +316,107 @@
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesisDataGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" 
+                                        Width="60"/>
+                    <DataGridTextColumn Header="Title" 
+                                        Binding="{Binding Titre}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Author" 
+                                        Binding="{Binding Auteur}" 
+                                        Width="150"/>
+                    <DataGridTextColumn Header="Specialty" 
+                                        Binding="{Binding Speciality}" 
+                                        Width="120"/>
+                    <DataGridTextColumn Header="Type" 
+                                        Binding="{Binding Type}" 
+                                        Width="100"/>
+                    <DataGridTextColumn Header="Year" 
+                                        Binding="{Binding Annee, StringFormat=yyyy}" 
+                                        Width="80"/>
+
+                    <!-- Actions Column -->
+                    <DataGridTemplateColumn Header="Actions" Width="340">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- View Details Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewDetailsButton_Click"
+                                            ToolTip="View Details"
+                                            Margin="2,0"
+                                            Width="55"
+                                            Height="40">
+                                        <TextBlock Text="ℹ" 
+                                                  FontSize="22"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- View PDF Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewPdfButton_Click"
+                                            ToolTip="View PDF"
+                                            Margin="2,0"
+                                            Width="55"
+                                            Height="40">
+                                        <TextBlock Text="📄" 
+                                                  FontSize="22"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Message Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="SendMessageButton_Click"
+                                            ToolTip="Send Message"
+                                            Margin="2,0"
+                                            Width="55"
+                                            Height="40">
+                                        <TextBlock Text="✉" 
+                                                  FontSize="22"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Favorite Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="FavoriteButton_Click"
+                                            ToolTip="Add to Favorites"
+                                            Margin="2,0"
+                                            Width="55"
+                                            Height="40">
+                                        <TextBlock Text="★" 
+                                                  FontSize="22"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Delete Button with Material Icons Font -->
+                                    <!-- Delete Button with Rounded Delete Icon -->
+                                    <Button Style="{StaticResource DeleteButtonStyle}"
+                                             Tag="{Binding}"
+                                               Click="DeleteButton_Click"
+                                       ToolTip="Delete Thesis"
+                                        Margin="2,0"
+                                        Width="55"
+                                         Height="40">
+                                        <Path Data="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M17,7H14.5L13.5,6H10.5L9.5,7H7V9H17V7M9,18H15A1,1 0 0,0 16,17V10H8V17A1,1 0 0,0 9,18Z" 
+                                          Fill="White" 
+                                             Stretch="Uniform"
+                                             Width="22" 
+                                            Height="22"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
@@ -348,7 +449,7 @@
                                FontSize="16" 
                                VerticalAlignment="Center"/>
                 </Button>
-                
+
                 <Button x:Name="PreviousPageButton" 
                         Style="{StaticResource PaginationButtonStyle}"
                         Click="PreviousPageButton_Click"
@@ -357,7 +458,7 @@
                                FontSize="16" 
                                VerticalAlignment="Center"/>
                 </Button>
-                
+
                 <!-- Page Number Buttons (populated dynamically) -->
                 <ItemsControl x:Name="PaginationItemsControl" 
                               VerticalAlignment="Center">
@@ -367,7 +468,7 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
-                
+
                 <Button x:Name="NextPageButton" 
                         Style="{StaticResource PaginationButtonStyle}"
                         Click="NextPageButton_Click"
@@ -376,7 +477,7 @@
                                FontSize="16" 
                                VerticalAlignment="Center"/>
                 </Button>
-                
+
                 <Button x:Name="LastPageButton" 
                         Style="{StaticResource PaginationButtonStyle}"
                         Click="LastPageButton_Click"
