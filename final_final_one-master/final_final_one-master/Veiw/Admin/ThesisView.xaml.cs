@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,15 +11,26 @@ using MySql.Data.MySqlClient;
 using ThesesModels;
 using FavorisModels;
 using System.Windows.Input;
-using System.Threading.Tasks;
-using System.Reflection;
-
-// … نفس الكود الذي أرسلته أولاً، بدون تعديل …
-
+using UserModels;
 
 namespace DataGridNamespace.Admin
 {
+    public class RoleToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is RoleUtilisateur userRole && parameter is string requiredRole)
+            {
+                return userRole.ToString() == requiredRole ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public partial class ThesisView : UserControl
     {
@@ -51,6 +61,7 @@ namespace DataGridNamespace.Admin
                 // Now that the control is loaded, we can safely load data
                 LoadTheses();
                 SetupPagination();
+                SetupDataGridColumns();
                 isDataLoaded = true;
             }
         }
@@ -151,7 +162,7 @@ namespace DataGridNamespace.Admin
                 }
 
                 ApplyPagination();
-                UpdatePaginationControls();
+                UpdateDeleteButtonVisibility();
 
                 // Update the UI with loaded data count
                 Debug.WriteLine($"Loaded {allTheses.Count} theses successfully");
@@ -544,11 +555,10 @@ namespace DataGridNamespace.Admin
                     var detailsWindow = new Window
                     {
                         Title = "Thesis Details",
-                        Width = 750,
+                        Width = 800,
                         Height = 600,
-                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                        ResizeMode = ResizeMode.NoResize,
-                        Background = new SolidColorBrush(Colors.White)
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                        Owner = Window.GetWindow(this)
                     };
 
                     // Create the content
@@ -661,6 +671,25 @@ namespace DataGridNamespace.Admin
                         };
                         viewPdfButton.Click += ViewPdfButton_Click;
                         buttonsPanel.Children.Add(viewPdfButton);
+                    }
+
+                    // Delete button (only for Admin)
+                    if (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin)
+                    {
+                        var deleteButton = new Button
+                        {
+                            Content = "Delete",
+                            Width = 120,
+                            Height = 40,
+                            Margin = new Thickness(0, 0, 10, 0),
+                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5252")),
+                            Foreground = Brushes.White,
+                            BorderThickness = new Thickness(0),
+                            Style = (Style)FindResource("ActionButtonStyle"),
+                            Tag = thesis
+                        };
+                        deleteButton.Click += DeleteThesis;
+                        buttonsPanel.Children.Add(deleteButton);
                     }
 
                     // Close button
@@ -1008,124 +1037,231 @@ namespace DataGridNamespace.Admin
                 ThesisCounterText.Text = $"({totalItems} theses)";
             }
         }
-
-        private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
+        
+        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is not Button btn)
-                return;
-
-            // 1) Extract the thesis ID from the DataContext
-            int thesisId = 0;
-            var context = btn.DataContext;
-
-            // A) If this row’s DataContext is a Favoris object:
-            if (context is FavorisModels.Favoris fav && fav.These != null)
-            {
-                thesisId = fav.These.Id;
-            }
-            else if (context != null)
-            {
-                // B) Try reflection: look for a “These” property with an Id
-                var theseProp = context.GetType().GetProperty("These", BindingFlags.Public | BindingFlags.Instance);
-                if (theseProp?.GetValue(context) is object theseObj)
-                {
-                    var idProp = theseObj.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
-                    if (idProp?.GetValue(theseObj) is int nestedId)
-                        thesisId = nestedId;
-                }
-
-                // C) If still zero, try a direct “Id” property on the DataContext
-                if (thesisId == 0)
-                {
-                    var idProp2 = context.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
-                    if (idProp2?.GetValue(context) is int directId)
-                        thesisId = directId;
-                }
-            }
-
-            // 2) If no valid ID was found, warn and exit
-            if (thesisId <= 0)
-            {
-                MessageBox.Show(
-                    "Could not determine the thesis ID for this row.",
-                    "Warning",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
             try
             {
-                // 3) Fetch the student’s university email from the database
-                string email = await GetOwnerEmailAsync(thesisId);
-                if (string.IsNullOrWhiteSpace(email))
-                    throw new Exception("University email not found in the database.");
-
-                // 4) Open Gmail compose in the default browser
-                OpenGmail(email);
+                // Get the thesis object from the button tag
+                if (sender is Button button && button.Tag is Theses thesis)
+                {
+                    // Create and show the message window
+                    var messageWindow = new MessageWindow();
+                    messageWindow.Owner = Window.GetWindow(this);
+                    messageWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    messageWindow.SetThesis(thesis.Id, thesis.Titre);
+                    
+                    messageWindow.ShowDialog();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Error: {ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                Debug.WriteLine($"Error sending message: {ex.Message}");
+                MessageBox.Show($"Error sending message: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private static void OpenGmail(string email)
+        private void DeleteThesis(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(email))
+            if (sender is Button button && button.Tag is Theses thesis)
             {
-                MessageBox.Show(
-                    "No email address is available for this student.",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return;
-            }
-
-            string url = $"https://mail.google.com/mail/?view=cm&fs=1&to={Uri.EscapeDataString(email)}";
-
-            try
-            {
-                Process.Start(new ProcessStartInfo
+                try
                 {
-                    FileName = url,
-                    UseShellExecute = true   // ensures the URL opens in the default browser
-                });
+                    var result = MessageBox.Show($"Are you sure you want to delete '{thesis.Titre}'? This action cannot be undone.", 
+                                               "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        string connectionString = AppConfig.CloudSqlConnectionString;
+                        using (MySqlConnection conn = new MySqlConnection(connectionString))
+                        {
+                            conn.Open();
+                            
+                            // First, delete from favorites if exists
+                            string deleteFavoritesQuery = "DELETE FROM favoris WHERE these_id = @thesisId";
+                            using (MySqlCommand cmd = new MySqlCommand(deleteFavoritesQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@thesisId", thesis.Id);
+                                cmd.ExecuteNonQuery();
+                            }
+                            
+                            // Then delete the thesis
+                            string deleteThesisQuery = "DELETE FROM theses WHERE id = @id";
+                            using (MySqlCommand cmd = new MySqlCommand(deleteThesisQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@id", thesis.Id);
+                                int rowsAffected = cmd.ExecuteNonQuery();
+                                
+                                if (rowsAffected > 0)
+                                {
+                                    // Remove from the collection and refresh the UI
+                                    allTheses.Remove(thesis);
+                                    
+                                    // Recalculate pagination
+                                    totalItems = allTheses.Count;
+                                    totalPages = Math.Max(1, (int)Math.Ceiling((double)totalItems / itemsPerPage));
+                                    
+                                    // Adjust current page if needed
+                                    if (currentPage > totalPages)
+                                    {
+                                        currentPage = totalPages;
+                                    }
+                                    
+                                    // Apply pagination and update controls
+                                    ApplyPagination();
+                                    UpdatePaginationControls();
+                                    
+                                    MessageBox.Show("Thesis deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Failed to delete thesis. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error deleting thesis: {ex.Message}");
+                    MessageBox.Show($"Error deleting thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show(
-                    $"Failed to open browser: {ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                MessageBox.Show("Cannot delete thesis. The thesis information may be incomplete.", 
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private static async Task<string> GetOwnerEmailAsync(int thesisId)
+        private void UpdateDeleteButtonVisibility()
         {
-            const string sql = @"
-        SELECT u.email
-          FROM theses t
-          JOIN users  u ON u.id = t.user_id
-        WHERE t.id = @tid
-        LIMIT 1;";
-
-            await using var conn = new MySqlConnection(AppConfig.CloudSqlConnectionString);
-            await conn.OpenAsync();
-
-            await using var cmd = new MySqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@tid", thesisId);
-
-            var result = await cmd.ExecuteScalarAsync();
-            return result?.ToString() ?? string.Empty;
+            if (ThesisDataGrid != null)
+            {
+                foreach (var item in ThesisDataGrid.Items)
+                {
+                    if (ThesisDataGrid.ItemContainerGenerator.ContainerFromItem(item) is DataGridRow row)
+                    {
+                        var deleteButton = FindVisualChild<Button>(row, "DeleteButton");
+                        if (deleteButton != null)
+                        {
+                            deleteButton.Visibility = DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin 
+                                ? Visibility.Visible 
+                                : Visibility.Collapsed;
+                        }
+                    }
+                }
+            }
         }
 
+        private T FindVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T t && (child as FrameworkElement)?.Name == name)
+                {
+                    return t;
+                }
+                var result = FindVisualChild<T>(child, name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
 
+        private void SetupDataGridColumns()
+        {
+            if (ThesisDataGrid != null)
+            {
+                // Clear existing columns
+                ThesisDataGrid.Columns.Clear();
+
+                // Add standard columns
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "ID", Binding = new Binding("Id"), Width = 60 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Title", Binding = new Binding("Titre"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Author", Binding = new Binding("Auteur"), Width = 150 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Specialty", Binding = new Binding("Speciality"), Width = 120 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Type", Binding = new Binding("Type"), Width = 100 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new Binding("Annee") { StringFormat = "yyyy" }, Width = 80 });
+
+                // Create Actions column
+                var actionsColumn = new DataGridTemplateColumn { Header = "Actions", Width = 340 };
+                var cellTemplate = new DataTemplate();
+                var stackPanelFactory = new FrameworkElementFactory(typeof(StackPanel));
+                stackPanelFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+                stackPanelFactory.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+
+                // Add View Details button
+                AddButtonToTemplate(stackPanelFactory, "ℹ", "View Details", "ViewDetailsButton_Click", "ActionButtonStyle");
+
+                // Add View PDF button
+                AddButtonToTemplate(stackPanelFactory, "📄", "View PDF", "ViewPdfButton_Click", "ActionButtonStyle");
+
+                // Add Message button
+                AddButtonToTemplate(stackPanelFactory, "✉", "Send Message", "SendMessageButton_Click", "ActionButtonStyle");
+
+                // Add Favorite button
+                AddButtonToTemplate(stackPanelFactory, "★", "Add to Favorites", "FavoriteButton_Click", "ActionButtonStyle");
+
+                // Add Delete button only for Admin
+                if (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin)
+                {
+                    AddButtonToTemplate(stackPanelFactory, "🗑", "Delete Thesis", "DeleteButton_Click", "DeleteButtonStyle");
+                }
+
+                cellTemplate.VisualTree = stackPanelFactory;
+                actionsColumn.CellTemplate = cellTemplate;
+                ThesisDataGrid.Columns.Add(actionsColumn);
+            }
+        }
+
+        private void AddButtonToTemplate(FrameworkElementFactory parent, string content, string tooltip, string clickHandler, string styleKey)
+        {
+            var buttonFactory = new FrameworkElementFactory(typeof(Button));
+            buttonFactory.SetValue(Button.StyleProperty, FindResource(styleKey));
+            buttonFactory.SetValue(Button.TagProperty, new Binding());
+            buttonFactory.SetValue(Button.ToolTipProperty, tooltip);
+            buttonFactory.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
+            buttonFactory.SetValue(Button.WidthProperty, 55.0);
+            buttonFactory.SetValue(Button.HeightProperty, 40.0);
+
+            // Set the click event handler using AddHandler
+            buttonFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler((s, e) => 
+            {
+                if (s is Button button && button.Tag is Theses thesis)
+                {
+                    switch (clickHandler)
+                    {
+                        case "ViewDetailsButton_Click":
+                            ViewDetailsButton_Click(button, e);
+                            break;
+                        case "ViewPdfButton_Click":
+                            ViewPdfButton_Click(button, e);
+                            break;
+                        case "SendMessageButton_Click":
+                            SendMessageButton_Click(button, e);
+                            break;
+                        case "FavoriteButton_Click":
+                            FavoriteButton_Click(button, e);
+                            break;
+                        case "DeleteButton_Click":
+                            DeleteButton_Click(button, e);
+                            break;
+                    }
+                }
+            }));
+
+            var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textBlockFactory.SetValue(TextBlock.TextProperty, content);
+            textBlockFactory.SetValue(TextBlock.FontSizeProperty, 22.0);
+            textBlockFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textBlockFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            buttonFactory.AppendChild(textBlockFactory);
+            parent.AppendChild(buttonFactory);
+        }
     }
 }
-
