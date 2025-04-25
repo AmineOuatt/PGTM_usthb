@@ -200,6 +200,9 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Role to Visibility Converter -->
+        <local:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter"/>
     </UserControl.Resources>
 
     <Grid>
@@ -313,105 +316,6 @@
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesisDataGrid_SelectionChanged">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" 
-                                        Binding="{Binding Id}" 
-                                        Width="60"/>
-                    <DataGridTextColumn Header="Title" 
-                                        Binding="{Binding Titre}" 
-                                        Width="*"/>
-                    <DataGridTextColumn Header="Author" 
-                                        Binding="{Binding Auteur}" 
-                                        Width="150"/>
-                    <DataGridTextColumn Header="Specialty" 
-                                        Binding="{Binding Speciality}" 
-                                        Width="120"/>
-                    <DataGridTextColumn Header="Type" 
-                                        Binding="{Binding Type}" 
-                                        Width="100"/>
-                    <DataGridTextColumn Header="Year" 
-                                        Binding="{Binding Annee, StringFormat=yyyy}" 
-                                        Width="80"/>
-
-                    <!-- Actions Column -->
-                    <DataGridTemplateColumn Header="Actions" Width="340">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <!-- View Details Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
-                                            Tag="{Binding}"
-                                            Click="ViewDetailsButton_Click"
-                                            ToolTip="View Details"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
-                                        <TextBlock Text="ℹ" 
-                                                  FontSize="22"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Button>
-
-                                    <!-- View PDF Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
-                                            Tag="{Binding}"
-                                            Click="ViewPdfButton_Click"
-                                            ToolTip="View PDF"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
-                                        <TextBlock Text="📄" 
-                                                  FontSize="22"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Button>
-                                    
-                                    <!-- Message Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
-                                            Tag="{Binding}"
-                                            Click="SendMessageButton_Click"
-                                            ToolTip="Send Message"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
-                                        <TextBlock Text="✉" 
-                                                  FontSize="22"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Button>
-                                    
-                                    <!-- Favorite Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
-                                            Tag="{Binding}"
-                                            Click="FavoriteButton_Click"
-                                            ToolTip="Add to Favorites"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
-                                        <TextBlock Text="★" 
-                                                  FontSize="22"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Button>
-
-                                    <!-- Delete Button -->
-                                    <Button Style="{StaticResource DeleteButtonStyle}"
-                                            Tag="{Binding}"
-                                            Click="DeleteButton_Click"
-                                            ToolTip="Delete Thesis"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
-                                        <TextBlock Text="🗑" 
-                                                  FontSize="22"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
-                                    </Button>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>

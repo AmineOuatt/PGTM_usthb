@@ -11,9 +11,27 @@ using MySql.Data.MySqlClient;
 using ThesesModels;
 using FavorisModels;
 using System.Windows.Input;
+using UserModels;
 
 namespace DataGridNamespace.Admin
 {
+    public class RoleToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is RoleUtilisateur userRole && parameter is string requiredRole)
+            {
+                return userRole.ToString() == requiredRole ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class ThesisView : UserControl
     {
         private ObservableCollection<Theses> allTheses;
@@ -43,6 +61,7 @@ namespace DataGridNamespace.Admin
                 // Now that the control is loaded, we can safely load data
                 LoadTheses();
                 SetupPagination();
+                SetupDataGridColumns();
                 isDataLoaded = true;
             }
         }
@@ -143,7 +162,7 @@ namespace DataGridNamespace.Admin
                 }
 
                 ApplyPagination();
-                UpdatePaginationControls();
+                UpdateDeleteButtonVisibility();
 
                 // Update the UI with loaded data count
                 Debug.WriteLine($"Loaded {allTheses.Count} theses successfully");
@@ -536,11 +555,10 @@ namespace DataGridNamespace.Admin
                     var detailsWindow = new Window
                     {
                         Title = "Thesis Details",
-                        Width = 750,
+                        Width = 800,
                         Height = 600,
-                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                        ResizeMode = ResizeMode.NoResize,
-                        Background = new SolidColorBrush(Colors.White)
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                        Owner = Window.GetWindow(this)
                     };
 
                     // Create the content
@@ -653,6 +671,25 @@ namespace DataGridNamespace.Admin
                         };
                         viewPdfButton.Click += ViewPdfButton_Click;
                         buttonsPanel.Children.Add(viewPdfButton);
+                    }
+
+                    // Delete button (only for Admin)
+                    if (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin)
+                    {
+                        var deleteButton = new Button
+                        {
+                            Content = "Delete",
+                            Width = 120,
+                            Height = 40,
+                            Margin = new Thickness(0, 0, 10, 0),
+                            Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5252")),
+                            Foreground = Brushes.White,
+                            BorderThickness = new Thickness(0),
+                            Style = (Style)FindResource("ActionButtonStyle"),
+                            Tag = thesis
+                        };
+                        deleteButton.Click += DeleteThesis;
+                        buttonsPanel.Children.Add(deleteButton);
                     }
 
                     // Close button
@@ -1022,6 +1059,209 @@ namespace DataGridNamespace.Admin
                 Debug.WriteLine($"Error sending message: {ex.Message}");
                 MessageBox.Show($"Error sending message: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void DeleteThesis(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Theses thesis)
+            {
+                try
+                {
+                    var result = MessageBox.Show($"Are you sure you want to delete '{thesis.Titre}'? This action cannot be undone.", 
+                                               "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        string connectionString = AppConfig.CloudSqlConnectionString;
+                        using (MySqlConnection conn = new MySqlConnection(connectionString))
+                        {
+                            conn.Open();
+                            
+                            // First, delete from favorites if exists
+                            string deleteFavoritesQuery = "DELETE FROM favoris WHERE these_id = @thesisId";
+                            using (MySqlCommand cmd = new MySqlCommand(deleteFavoritesQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@thesisId", thesis.Id);
+                                cmd.ExecuteNonQuery();
+                            }
+                            
+                            // Then delete the thesis
+                            string deleteThesisQuery = "DELETE FROM theses WHERE id = @id";
+                            using (MySqlCommand cmd = new MySqlCommand(deleteThesisQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@id", thesis.Id);
+                                int rowsAffected = cmd.ExecuteNonQuery();
+                                
+                                if (rowsAffected > 0)
+                                {
+                                    // Remove from the collection and refresh the UI
+                                    allTheses.Remove(thesis);
+                                    
+                                    // Recalculate pagination
+                                    totalItems = allTheses.Count;
+                                    totalPages = Math.Max(1, (int)Math.Ceiling((double)totalItems / itemsPerPage));
+                                    
+                                    // Adjust current page if needed
+                                    if (currentPage > totalPages)
+                                    {
+                                        currentPage = totalPages;
+                                    }
+                                    
+                                    // Apply pagination and update controls
+                                    ApplyPagination();
+                                    UpdatePaginationControls();
+                                    
+                                    MessageBox.Show("Thesis deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Failed to delete thesis. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error deleting thesis: {ex.Message}");
+                    MessageBox.Show($"Error deleting thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Cannot delete thesis. The thesis information may be incomplete.", 
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateDeleteButtonVisibility()
+        {
+            if (ThesisDataGrid != null)
+            {
+                foreach (var item in ThesisDataGrid.Items)
+                {
+                    if (ThesisDataGrid.ItemContainerGenerator.ContainerFromItem(item) is DataGridRow row)
+                    {
+                        var deleteButton = FindVisualChild<Button>(row, "DeleteButton");
+                        if (deleteButton != null)
+                        {
+                            deleteButton.Visibility = DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin 
+                                ? Visibility.Visible 
+                                : Visibility.Collapsed;
+                        }
+                    }
+                }
+            }
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent, string name) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T t && (child as FrameworkElement)?.Name == name)
+                {
+                    return t;
+                }
+                var result = FindVisualChild<T>(child, name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        private void SetupDataGridColumns()
+        {
+            if (ThesisDataGrid != null)
+            {
+                // Clear existing columns
+                ThesisDataGrid.Columns.Clear();
+
+                // Add standard columns
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "ID", Binding = new Binding("Id"), Width = 60 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Title", Binding = new Binding("Titre"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Author", Binding = new Binding("Auteur"), Width = 150 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Specialty", Binding = new Binding("Speciality"), Width = 120 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Type", Binding = new Binding("Type"), Width = 100 });
+                ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new Binding("Annee") { StringFormat = "yyyy" }, Width = 80 });
+
+                // Create Actions column
+                var actionsColumn = new DataGridTemplateColumn { Header = "Actions", Width = 340 };
+                var cellTemplate = new DataTemplate();
+                var stackPanelFactory = new FrameworkElementFactory(typeof(StackPanel));
+                stackPanelFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+                stackPanelFactory.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+
+                // Add View Details button
+                AddButtonToTemplate(stackPanelFactory, "ℹ", "View Details", "ViewDetailsButton_Click", "ActionButtonStyle");
+
+                // Add View PDF button
+                AddButtonToTemplate(stackPanelFactory, "📄", "View PDF", "ViewPdfButton_Click", "ActionButtonStyle");
+
+                // Add Message button
+                AddButtonToTemplate(stackPanelFactory, "✉", "Send Message", "SendMessageButton_Click", "ActionButtonStyle");
+
+                // Add Favorite button
+                AddButtonToTemplate(stackPanelFactory, "★", "Add to Favorites", "FavoriteButton_Click", "ActionButtonStyle");
+
+                // Add Delete button only for Admin
+                if (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin)
+                {
+                    AddButtonToTemplate(stackPanelFactory, "🗑", "Delete Thesis", "DeleteButton_Click", "DeleteButtonStyle");
+                }
+
+                cellTemplate.VisualTree = stackPanelFactory;
+                actionsColumn.CellTemplate = cellTemplate;
+                ThesisDataGrid.Columns.Add(actionsColumn);
+            }
+        }
+
+        private void AddButtonToTemplate(FrameworkElementFactory parent, string content, string tooltip, string clickHandler, string styleKey)
+        {
+            var buttonFactory = new FrameworkElementFactory(typeof(Button));
+            buttonFactory.SetValue(Button.StyleProperty, FindResource(styleKey));
+            buttonFactory.SetValue(Button.TagProperty, new Binding());
+            buttonFactory.SetValue(Button.ToolTipProperty, tooltip);
+            buttonFactory.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
+            buttonFactory.SetValue(Button.WidthProperty, 55.0);
+            buttonFactory.SetValue(Button.HeightProperty, 40.0);
+
+            // Set the click event handler using AddHandler
+            buttonFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler((s, e) => 
+            {
+                if (s is Button button && button.Tag is Theses thesis)
+                {
+                    switch (clickHandler)
+                    {
+                        case "ViewDetailsButton_Click":
+                            ViewDetailsButton_Click(button, e);
+                            break;
+                        case "ViewPdfButton_Click":
+                            ViewPdfButton_Click(button, e);
+                            break;
+                        case "SendMessageButton_Click":
+                            SendMessageButton_Click(button, e);
+                            break;
+                        case "FavoriteButton_Click":
+                            FavoriteButton_Click(button, e);
+                            break;
+                        case "DeleteButton_Click":
+                            DeleteButton_Click(button, e);
+                            break;
+                    }
+                }
+            }));
+
+            var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textBlockFactory.SetValue(TextBlock.TextProperty, content);
+            textBlockFactory.SetValue(TextBlock.FontSizeProperty, 22.0);
+            textBlockFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textBlockFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            buttonFactory.AppendChild(textBlockFactory);
+            parent.AppendChild(buttonFactory);
         }
     }
 }
