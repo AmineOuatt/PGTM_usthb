@@ -247,7 +247,7 @@
     
 
     <!-- Main Layout -->
-    <Grid Margin="30">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -262,11 +262,11 @@
                      FontWeight="SemiBold"
                      Foreground="White"
                      VerticalAlignment="Center"
-                     HorizontalAlignment="Center"/>
+                     Margin="30,0,0,0"/>
         </Border>
 
         <!-- Search and Filter Section -->
-        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="20,15">
+        <Border Grid.Row="1" Background="#F0FFFF" Padding="30,15">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -334,27 +334,13 @@
         <!-- Members DataGrid -->
         <Border Grid.Row="2"
                 Background="White"
-                CornerRadius="8"
-                BorderThickness="1"
-                BorderBrush="#E5E7EB">
+                BorderThickness="0"
+                Margin="0">
             <DataGrid x:Name="MembersDataGrid"
                       Style="{StaticResource MembersDataGridStyle}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      GridLinesVisibility="None"
-                      HeadersVisibility="Column"
-                      Background="Transparent"
-                      RowBackground="White"
-                      AlternatingRowBackground="#F9FAFB"
-                      BorderThickness="0"
-                      SelectionMode="Single"
-                      SelectionUnit="FullRow"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      CanUserReorderColumns="False"
-                      CanUserResizeColumns="False"
-                      CanUserResizeRows="False"
-                      CanUserSortColumns="True">
+                      Margin="30,15"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Stretch">
                 <DataGrid.Columns>
                     <!-- ID Column -->
                     <DataGridTextColumn Header="ID" 
@@ -382,18 +368,6 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-
-
-
-
-
-
-
-
-
-
-
-
 
                     <!-- Position Column (Role) -->
                     <DataGridTextColumn Header="Role" 
@@ -440,14 +414,12 @@
             </DataGrid>
         </Border>
 
-
         <!-- Pagination Controls -->
         <Border Grid.Row="3"  
                 BorderBrush="#E5E7EB" 
                 BorderThickness="0,1,0,0" 
                 Padding="0,10,0,20"
-                Background="#F9FAFB"
-                CornerRadius="0,0,8,8">
+                Background="#F9FAFB">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <!-- Pagination Buttons (Previous/Next) -->
                 <Button x:Name="FirstPageButton" 
