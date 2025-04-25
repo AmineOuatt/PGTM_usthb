@@ -62,6 +62,7 @@ namespace DataGridNamespace.Admin
                 LoadTheses();
                 SetupPagination();
                 SetupDataGridColumns();
+                UpdateAddButtonVisibility();
                 isDataLoaded = true;
             }
         }
@@ -1262,6 +1263,16 @@ namespace DataGridNamespace.Admin
 
             buttonFactory.AppendChild(textBlockFactory);
             parent.AppendChild(buttonFactory);
+        }
+
+        private void UpdateAddButtonVisibility()
+        {
+            if (AddThesisButton != null)
+            {
+                AddThesisButton.Visibility = DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin 
+                    ? Visibility.Visible 
+                    : Visibility.Collapsed;
+            }
         }
     }
 }
