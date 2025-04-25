@@ -14,6 +14,8 @@ namespace DataGridNamespace.Admin
     public partial class AddThesisWindow : Window
     {
         private readonly CloudStorageService _cloudStorageService;
+        private Theses existingThesis;
+        private bool isEditMode;
         
         public AddThesisWindow()
         {
@@ -27,6 +29,38 @@ namespace DataGridNamespace.Admin
             
             // Initialize cloud storage service
             _cloudStorageService = new CloudStorageService();
+            
+            // Set window title
+            Title = "Add New Thesis";
+        }
+
+        public AddThesisWindow(Theses thesis) : this()
+        {
+            existingThesis = thesis;
+            isEditMode = true;
+            
+            // Set window title
+            Title = "Edit Thesis";
+            
+            // Populate fields with existing thesis data
+            TitleTextBox.Text = thesis.Titre;
+            AuthorTextBox.Text = thesis.Auteur;
+            SpecialtyTextBox.Text = thesis.Speciality;
+            
+            // Set type
+            foreach (ComboBoxItem item in TypeComboBox.Items)
+            {
+                if (item.Content.ToString() == thesis.Type.ToString())
+                {
+                    TypeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            
+            KeywordsTextBox.Text = thesis.MotsCles;
+            YearDatePicker.SelectedDate = thesis.Annee;
+            AbstractTextBox.Text = thesis.Resume;
+            FilePathTextBox.Text = thesis.Fichier;
         }
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -113,18 +147,34 @@ namespace DataGridNamespace.Admin
                 
                 this.Cursor = Cursors.Wait;
                 
-                // Upload file to Cloud Storage
-                string fileName = Path.GetFileName(FilePathTextBox.Text);
-                string objectName = $"theses/{Guid.NewGuid()}/{fileName}";
+                string uploadedObjectName = FilePathTextBox.Text;
                 
-                string uploadedObjectName;
-                try
+                // Only upload new file if it's different from the existing one
+                if (isEditMode && FilePathTextBox.Text != existingThesis.Fichier)
                 {
-                    uploadedObjectName = await _cloudStorageService.UploadFileViaSignedUrl(FilePathTextBox.Text, objectName);
+                    // Upload file to Cloud Storage
+                    string fileName = Path.GetFileName(FilePathTextBox.Text);
+                    string objectName = $"theses/{Guid.NewGuid()}/{fileName}";
                     
-                    if (uploadedObjectName == null)
+                    try
                     {
-                        MessageBox.Show("Failed to upload file to cloud storage.", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        uploadedObjectName = await _cloudStorageService.UploadFileViaSignedUrl(FilePathTextBox.Text, objectName);
+                        
+                        if (uploadedObjectName == null)
+                        {
+                            MessageBox.Show("Failed to upload file to cloud storage.", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            
+                            SaveButton.IsEnabled = true;
+                            CancelButton.IsEnabled = true;
+                            this.Cursor = Cursors.Arrow;
+                            
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error uploading file: {ex.Message}");
+                        MessageBox.Show($"Error uploading file: {ex.Message}", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         
                         SaveButton.IsEnabled = true;
                         CancelButton.IsEnabled = true;
@@ -133,25 +183,26 @@ namespace DataGridNamespace.Admin
                         return;
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error uploading file: {ex.Message}");
-                    MessageBox.Show($"Error uploading file: {ex.Message}", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    
-                    SaveButton.IsEnabled = true;
-                    CancelButton.IsEnabled = true;
-                    this.Cursor = Cursors.Arrow;
-                    
-                    return;
-                }
 
                 // Get type from ComboBox
                 string typeStr = ((ComboBoxItem)TypeComboBox.SelectedItem).Content.ToString();
                 TypeThese type = (TypeThese)Enum.Parse(typeof(TypeThese), typeStr);
 
                 // Save to database
-                string query = @"INSERT INTO theses (titre, auteur, speciality, Type, mots_cles, annee, Resume, fichier, user_id) 
-                               VALUES (@titre, @auteur, @speciality, @type, @motsCles, @annee, @resume, @fichier, @userId)";
+                string query;
+                if (isEditMode)
+                {
+                    query = @"UPDATE theses 
+                            SET titre = @titre, auteur = @auteur, speciality = @speciality, 
+                                Type = @type, mots_cles = @motsCles, annee = @annee, 
+                                Resume = @resume, fichier = @fichier 
+                            WHERE id = @id AND user_id = @userId";
+                }
+                else
+                {
+                    query = @"INSERT INTO theses (titre, auteur, speciality, Type, mots_cles, annee, Resume, fichier, user_id) 
+                            VALUES (@titre, @auteur, @speciality, @type, @motsCles, @annee, @resume, @fichier, @userId)";
+                }
 
                 using (MySqlConnection conn = new MySqlConnection(AppConfig.CloudSqlConnectionString))
                 {
@@ -167,21 +218,37 @@ namespace DataGridNamespace.Admin
                         cmd.Parameters.AddWithValue("@resume", AbstractTextBox.Text);
                         cmd.Parameters.AddWithValue("@fichier", uploadedObjectName);
                         cmd.Parameters.AddWithValue("@userId", currentUserId);
+                        
+                        if (isEditMode)
+                        {
+                            cmd.Parameters.AddWithValue("@id", existingThesis.Id);
+                        }
 
-                        cmd.ExecuteNonQuery();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        
+                        if (rowsAffected > 0)
+                        {
+                            MessageBox.Show($"Thesis {(isEditMode ? "updated" : "added")} successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            
+                            // Close the window with success result
+                            DialogResult = true;
+                            Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Failed to {(isEditMode ? "update" : "add")} thesis. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            
+                            SaveButton.IsEnabled = true;
+                            CancelButton.IsEnabled = true;
+                            this.Cursor = Cursors.Arrow;
+                        }
                     }
                 }
-
-                MessageBox.Show("Thesis added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                
-                // Close the window with success result
-                DialogResult = true;
-                Close();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error adding thesis: {ex.Message}");
-                MessageBox.Show($"Error adding thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.WriteLine($"Error {(isEditMode ? "updating" : "adding")} thesis: {ex.Message}");
+                MessageBox.Show($"Error {(isEditMode ? "updating" : "adding")} thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 
                 SaveButton.IsEnabled = true;
                 CancelButton.IsEnabled = true;
