@@ -51,9 +51,31 @@ namespace DataGridNamespace.Admin
                     return;
                 }
 
+                // Validate email format
+                try
+                {
+                    var email = new System.Net.Mail.MailAddress(EmailTextBox.Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 if (RoleComboBox.SelectedItem == null)
                 {
                     MessageBox.Show("Please select a role.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Get the selected role string and convert it to proper case
+                string selectedRoleStr = ((ComboBoxItem)RoleComboBox.SelectedItem).Content.ToString().ToLower();
+                RoleUtilisateur selectedRole = ConvertStringToRole(selectedRoleStr);
+
+                // Check if trying to change admin role
+                if (_user.Role == RoleUtilisateur.Admin && selectedRole != RoleUtilisateur.Admin)
+                {
+                    MessageBox.Show("Cannot change the role of an administrator account.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -69,7 +91,7 @@ namespace DataGridNamespace.Admin
                     using (MySqlCommand cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@name", NameTextBox.Text);
-                        cmd.Parameters.AddWithValue("@role", ((ComboBoxItem)RoleComboBox.SelectedItem).Content.ToString().ToLower());
+                        cmd.Parameters.AddWithValue("@role", selectedRoleStr);
                         cmd.Parameters.AddWithValue("@email", EmailTextBox.Text);
                         cmd.Parameters.AddWithValue("@id", _user.Id);
 
@@ -86,7 +108,7 @@ namespace DataGridNamespace.Admin
                 // Update the user object with new values
                 _user.Nom = NameTextBox.Text;
                 _user.Email = EmailTextBox.Text;
-                _user.Role = Enum.Parse<RoleUtilisateur>(((ComboBoxItem)RoleComboBox.SelectedItem).Content.ToString());
+                _user.Role = selectedRole;
 
                 // Refresh the members list if callback provided
                 _refreshCallback?.Invoke();
@@ -99,6 +121,21 @@ namespace DataGridNamespace.Admin
             {
                 Debug.WriteLine($"Error updating member: {ex.Message}");
                 MessageBox.Show($"Error updating member: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private RoleUtilisateur ConvertStringToRole(string roleString)
+        {
+            switch (roleString.ToLower())
+            {
+                case "admin":
+                    return RoleUtilisateur.Admin;
+                case "etudiant":
+                    return RoleUtilisateur.Etudiant;
+                case "simpleuser":
+                    return RoleUtilisateur.SimpleUser;
+                default:
+                    return RoleUtilisateur.SimpleUser;
             }
         }
 

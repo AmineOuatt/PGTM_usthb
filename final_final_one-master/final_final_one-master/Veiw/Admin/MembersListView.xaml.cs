@@ -263,8 +263,19 @@ namespace DataGridNamespace.Admin
                     return;
                 }
 
-                // Ask for confirmation
-                var result = MessageBox.Show($"Are you sure you want to delete the user: {user.Nom}?\nThis action cannot be undone.",
+                // Check if the user is trying to delete themselves
+                if (user.Id == DataGridNamespace.Session.CurrentUserId)
+                {
+                    MessageBox.Show("You cannot delete your own account.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Ask for confirmation with more details
+                var result = MessageBox.Show($"Are you sure you want to delete the following user?\n\n" +
+                                           $"Name: {user.Nom}\n" +
+                                           $"Email: {user.Email}\n" +
+                                           $"Role: {user.Role}\n\n" +
+                                           "This action cannot be undone.",
                                           "Delete Confirmation",
                                           MessageBoxButton.YesNo,
                                           MessageBoxImage.Warning);
@@ -290,14 +301,29 @@ namespace DataGridNamespace.Admin
                                     // Remove from the list
                                     allMembers.Remove(user);
                                     membersViewSource.View.Refresh();
+                                    
+                                    // Update pagination if needed
+                                    int newTotalCount = GetTotalMemberCount();
+                                    _totalPages = (int)Math.Ceiling((double)newTotalCount / _itemsPerPage);
+                                    if (_currentPage > _totalPages)
+                                    {
+                                        _currentPage = _totalPages;
+                                    }
+                                    UpdatePaginationControls();
+                                    
                                     MessageBox.Show("User deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Failed to delete user. User not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    MessageBox.Show("Failed to delete user. User not found in the database.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                                 }
                             }
                         }
+                    }
+                    catch (MySqlException ex)
+                    {
+                        Debug.WriteLine($"Database error deleting user: {ex.Message}");
+                        MessageBox.Show($"Database error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     catch (Exception ex)
                     {
