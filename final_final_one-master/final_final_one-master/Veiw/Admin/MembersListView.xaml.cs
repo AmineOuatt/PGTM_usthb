@@ -15,15 +15,11 @@ namespace DataGridNamespace.Admin
     public partial class MembersListView : Page
     {
         private ObservableCollection<User> allMembers;
-
-        private ObservableCollection<User> filteredMembers;
         private CollectionViewSource membersViewSource;
         private int _currentPage = 1;
         private int _itemsPerPage = 10;
         private int _totalPages;
         private bool isDataLoaded = false;
-        private Popup filterPopup; // Declare filterPopup as a class-level variable
-
 
         public MembersListView()
         {
@@ -64,9 +60,15 @@ namespace DataGridNamespace.Admin
                                     int userId = reader.GetInt32("id");
                                     string userName = reader.IsDBNull(reader.GetOrdinal("nom")) ? "Unknown" : reader.GetString("nom");
                                     string email = reader.IsDBNull(reader.GetOrdinal("email")) ? "" : reader.GetString("email");
-                                    string roleStr = reader.IsDBNull(reader.GetOrdinal("role")) ? "simpleuser" : reader.GetString("role");
+                                    string roleStr = reader.IsDBNull(reader.GetOrdinal("role")) ? "simpleuser" : reader.GetString("role").ToLower();
 
-                                    RoleUtilisateur role = ConvertStringToRole(roleStr);
+                                    // Convert role string to enum, defaulting to SimpleUser if not recognized
+                                    RoleUtilisateur role = roleStr switch
+                                    {
+                                        "admin" => RoleUtilisateur.Admin,
+                                        "etudiant" => RoleUtilisateur.Etudiant,
+                                        _ => RoleUtilisateur.SimpleUser
+                                    };
 
                                     var user = new User
                                     {
@@ -122,10 +124,8 @@ namespace DataGridNamespace.Admin
             }
         }
 
-
         private void UpdatePaginationControls()
         {
-
             // Update pagination buttons
             FirstPageButton.IsEnabled = _currentPage > 1;
             PreviousPageButton.IsEnabled = _currentPage > 1;
@@ -191,23 +191,30 @@ namespace DataGridNamespace.Admin
             }
         }
 
-
         private void MembersViewSource_Filter(object sender, FilterEventArgs e)
         {
-            if (SearchTextBox == null)
+            if (e.Item is User user)
             {
-                e.Accepted = true;
-                return;
-            }
+                bool matchesSearch = true;
+                bool matchesFilter = true;
 
-            if (e.Item is User user && !string.IsNullOrEmpty(SearchTextBox.Text))
-            {
-                string searchText = SearchTextBox.Text.ToLower();
-                bool nameMatches = !string.IsNullOrEmpty(user.Nom) && user.Nom.ToLower().Contains(searchText);
-                bool emailMatches = !string.IsNullOrEmpty(user.Email) && user.Email.ToLower().Contains(searchText);
-                bool roleMatches = user.Role.ToString().ToLower().Contains(searchText);
+                // Apply search filter
+                if (!string.IsNullOrEmpty(SearchTextBox.Text))
+                {
+                    string searchText = SearchTextBox.Text.ToLower();
+                    matchesSearch = (!string.IsNullOrEmpty(user.Nom) && user.Nom.ToLower().Contains(searchText)) ||
+                                  (!string.IsNullOrEmpty(user.Email) && user.Email.ToLower().Contains(searchText)) ||
+                                  user.Role.ToString().ToLower().Contains(searchText);
+                }
 
-                e.Accepted = nameMatches || emailMatches || roleMatches;
+                // Apply role filter
+                if (FilterComboBox.SelectedItem is ComboBoxItem selectedItem && selectedItem.Content.ToString() != "All Members")
+                {
+                    string selectedRole = selectedItem.Content.ToString();
+                    matchesFilter = user.Role.ToString() == selectedRole;
+                }
+
+                e.Accepted = matchesSearch && matchesFilter;
             }
             else
             {
@@ -215,6 +222,13 @@ namespace DataGridNamespace.Admin
             }
         }
 
+        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (membersViewSource != null)
+            {
+                membersViewSource.View.Refresh();
+            }
+        }
 
         private RoleUtilisateur ConvertStringToRole(string roleString)
         {
@@ -231,8 +245,8 @@ namespace DataGridNamespace.Admin
                 return RoleUtilisateur.SimpleUser;
             }
         }
-   
-    private void EditButton_Click(object sender, RoutedEventArgs e)
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is User user)
             {
@@ -333,86 +347,6 @@ namespace DataGridNamespace.Admin
                 }
             }
         }
-        private void RoleFilterButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create the ComboBox for role selection
-            ComboBox roleFilterComboBox = new ComboBox();
-            roleFilterComboBox.Items.Add("All Roles");
-            roleFilterComboBox.Items.Add("Admin");
-            roleFilterComboBox.Items.Add("Etudiant");
-            roleFilterComboBox.Items.Add("SimpleUser");
-            roleFilterComboBox.Items.Add("Enseignant");
-
-            // Set the default value
-            roleFilterComboBox.SelectedIndex = 0;
-
-            // Define the button for applying the filter
-            Button applyFilterButton = new Button
-            {
-                Content = "Apply Filter",
-                Style = (Style)FindResource("ActionButtonStyle"),
-                Width = 100,
-                Height = 35
-            };
-
-            // Event for applying the filter and closing the popup
-            applyFilterButton.Click += (s, args) =>
-            {
-                ApplyRoleFilter(roleFilterComboBox.SelectedItem.ToString());
-                filterPopup.IsOpen = false; // Close the popup after applying filter
-            };
-
-            // StackPanel to hold ComboBox and Apply Filter button
-            StackPanel filterStackPanel = new StackPanel();
-            filterStackPanel.Children.Add(roleFilterComboBox);
-            filterStackPanel.Children.Add(applyFilterButton);
-
-            // Create and display the Popup
-            filterPopup = new Popup
-            {
-                Child = filterStackPanel,
-                PlacementTarget = RoleFilterButton,
-                Placement = PlacementMode.Bottom
-            };
-
-            filterPopup.IsOpen = true; // Open the popup
-        }
-
-
-
-
-
-
-        private void ApplyRoleFilter(string selectedRole)
-        {
-            // Apply the role filter logic here
-            if (selectedRole == "All Roles")
-            {
-                membersViewSource.View.Filter = null; // No filter, show all members
-            }
-            else
-            {
-                membersViewSource.View.Filter = (obj) =>
-                {
-                    if (obj is User user)
-                    {
-                        return user.Role.ToString() == selectedRole; // Filter based on selected role
-                    }
-                    return false;
-                };
-            }
-
-            // Refresh the DataGrid with the applied filter
-            membersViewSource.View.Refresh();
-        }
-
-
-
-
-
-
-
-
 
         private void MembersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -423,10 +357,7 @@ namespace DataGridNamespace.Admin
                 Debug.WriteLine($"Selected user: {selectedUser.Nom}");
             }
         }
-
-
     }
-
 }
 
 
