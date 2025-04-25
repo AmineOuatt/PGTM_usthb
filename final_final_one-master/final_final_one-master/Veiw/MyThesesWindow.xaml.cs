@@ -33,6 +33,54 @@ namespace DataGridNamespace
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Speciality", Binding = new System.Windows.Data.Binding("Speciality"), Width = 150 });
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Type", Binding = new System.Windows.Data.Binding("Type"), Width = 100 });
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new System.Windows.Data.Binding("Annee") { StringFormat = "yyyy" }, Width = 100 });
+
+            // Add Options column with Edit and Remove buttons
+            var optionsColumn = new DataGridTemplateColumn
+            {
+                Header = "Options",
+                Width = 120
+            };
+
+            var cellTemplate = new DataTemplate();
+            var stackPanel = new FrameworkElementFactory(typeof(StackPanel));
+            stackPanel.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+            stackPanel.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+
+            // Edit Button
+            var editButton = new FrameworkElementFactory(typeof(Button));
+            editButton.SetValue(Button.StyleProperty, Application.Current.Resources["EditButtonStyle"]);
+            editButton.SetValue(Button.WidthProperty, 30.0);
+            editButton.SetValue(Button.HeightProperty, 30.0);
+            editButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
+            editButton.SetValue(Button.ToolTipProperty, "Edit Thesis");
+            editButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(EditButton_Click));
+
+            var editIcon = new FrameworkElementFactory(typeof(TextBlock));
+            editIcon.SetValue(TextBlock.TextProperty, "✏️");
+            editIcon.SetValue(TextBlock.FontSizeProperty, 14.0);
+            editButton.AppendChild(editIcon);
+
+            // Remove Button
+            var removeButton = new FrameworkElementFactory(typeof(Button));
+            removeButton.SetValue(Button.StyleProperty, Application.Current.Resources["DeleteButtonStyle"]);
+            removeButton.SetValue(Button.WidthProperty, 30.0);
+            removeButton.SetValue(Button.HeightProperty, 30.0);
+            removeButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
+            removeButton.SetValue(Button.ToolTipProperty, "Remove Thesis");
+            removeButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(DeleteButton_Click));
+
+            var removeIcon = new FrameworkElementFactory(typeof(TextBlock));
+            removeIcon.SetValue(TextBlock.TextProperty, "🗑️");
+            removeIcon.SetValue(TextBlock.FontSizeProperty, 14.0);
+            removeButton.AppendChild(removeIcon);
+
+            stackPanel.AppendChild(editButton);
+            stackPanel.AppendChild(removeButton);
+
+            cellTemplate.VisualTree = stackPanel;
+            optionsColumn.CellTemplate = cellTemplate;
+
+            ThesesDataGrid.Columns.Add(optionsColumn);
         }
 
         private void LoadUserTheses()
@@ -122,8 +170,6 @@ namespace DataGridNamespace
         private void ThesesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             selectedThesis = ThesesDataGrid.SelectedItem as Theses;
-            EditButton.IsEnabled = selectedThesis != null;
-            DeleteButton.IsEnabled = selectedThesis != null;
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)

@@ -1269,7 +1269,8 @@ namespace DataGridNamespace.Admin
         {
             if (AddThesisButton != null)
             {
-                AddThesisButton.Visibility = DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin 
+                AddThesisButton.Visibility = (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin || 
+                                            DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Etudiant)
                     ? Visibility.Visible 
                     : Visibility.Collapsed;
             }

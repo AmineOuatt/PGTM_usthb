@@ -10,9 +10,6 @@ using DataGridNamespace.Services;
 using UserModels;
 using DataGridNamespace;
 using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using ThesesModels;
-using DataGridNamespace.Admin;
 
 namespace DataGrid
 {
@@ -24,15 +21,11 @@ namespace DataGrid
         private string originalProfilePicRef;
         private string newProfilePicPath;
         private Button editProfileButton; // Reference to the edit button
-        private ObservableCollection<Theses> userTheses;
 
         public ProfileView()
         {
             InitializeComponent();
-            userTheses = new ObservableCollection<Theses>();
-            ThesesListView.ItemsSource = userTheses;
             LoadUserData();
-            LoadUserTheses();
         }
 
         private async void LoadUserData()
@@ -326,126 +319,6 @@ namespace DataGrid
             {
                 Debug.WriteLine($"Error selecting profile picture: {ex.Message}");
                 MessageBox.Show($"Error selecting profile picture: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void LoadUserTheses()
-        {
-            try
-            {
-                int userId = Session.CurrentUserId;
-                string connectionString = AppConfig.CloudSqlConnectionString;
-                string query = @"SELECT t.id, t.titre, t.auteur, t.speciality, t.Type, 
-                               t.mots_cles as MotsCles, t.annee, t.Resume, t.fichier, t.user_id as UserId 
-                               FROM theses t
-                               WHERE t.user_id = @userId
-                               ORDER BY t.id ASC";
-
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@userId", userId);
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            userTheses.Clear();
-                            while (reader.Read())
-                            {
-                                var thesis = new Theses
-                                {
-                                    Id = reader.GetInt32("id"),
-                                    Titre = reader.IsDBNull(reader.GetOrdinal("titre")) ? "" : reader.GetString("titre"),
-                                    Auteur = reader.IsDBNull(reader.GetOrdinal("auteur")) ? "" : reader.GetString("auteur"),
-                                    Speciality = reader.IsDBNull(reader.GetOrdinal("speciality")) ? "" : reader.GetString("speciality"),
-                                    Type = (TypeThese)Enum.Parse(typeof(TypeThese), reader.GetString("Type")),
-                                    MotsCles = reader.IsDBNull(reader.GetOrdinal("MotsCles")) ? "" : reader.GetString("MotsCles"),
-                                    Annee = reader.GetDateTime("annee"),
-                                    Resume = reader.IsDBNull(reader.GetOrdinal("Resume")) ? "" : reader.GetString("Resume"),
-                                    Fichier = reader.IsDBNull(reader.GetOrdinal("fichier")) ? "" : reader.GetString("fichier"),
-                                    UserId = reader.GetInt32("UserId")
-                                };
-                                userTheses.Add(thesis);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error loading user theses: {ex.Message}");
-                MessageBox.Show($"Error loading your theses: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void EditThesis_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag is Theses thesis)
-            {
-                try
-                {
-                    var editThesisWindow = new AddThesisWindow(thesis);
-                    editThesisWindow.Owner = Window.GetWindow(this);
-                    editThesisWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    
-                    if (editThesisWindow.ShowDialog() == true)
-                    {
-                        LoadUserTheses(); // Refresh the list after editing
-                        MessageBox.Show("Thesis updated successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error editing thesis: {ex.Message}");
-                    MessageBox.Show($"Error editing thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private void RemoveThesis_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag is Theses thesis)
-            {
-                try
-                {
-                    var result = MessageBox.Show(
-                        "Are you sure you want to remove this thesis? This action cannot be undone.",
-                        "Confirm Removal",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Warning);
-
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        string connectionString = AppConfig.CloudSqlConnectionString;
-                        string query = "DELETE FROM theses WHERE id = @thesisId AND user_id = @userId";
-
-                        using (MySqlConnection conn = new MySqlConnection(connectionString))
-                        {
-                            conn.Open();
-                            using (MySqlCommand cmd = new MySqlCommand(query, conn))
-                            {
-                                cmd.Parameters.AddWithValue("@thesisId", thesis.Id);
-                                cmd.Parameters.AddWithValue("@userId", Session.CurrentUserId);
-                                int rowsAffected = cmd.ExecuteNonQuery();
-
-                                if (rowsAffected > 0)
-                                {
-                                    userTheses.Remove(thesis);
-                                    MessageBox.Show("Thesis removed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
-                                else
-                                {
-                                    MessageBox.Show("Failed to remove thesis. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error removing thesis: {ex.Message}");
-                    MessageBox.Show($"Error removing thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
             }
         }
     }

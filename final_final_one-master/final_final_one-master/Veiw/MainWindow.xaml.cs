@@ -219,7 +219,7 @@ namespace DataGridNamespace
             try
             {
                 // Show simple user-specific buttons
-                DashboardButton.Visibility = Visibility.Visible;
+                DashboardButton.Visibility = Visibility.Collapsed;
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
@@ -250,17 +250,16 @@ namespace DataGridNamespace
             try
             {
                 // Show etudiant-specific buttons
-                DashboardButton.Visibility = Visibility.Visible;
+                DashboardButton.Visibility = Visibility.Collapsed;
                 ThesisButton.Visibility = Visibility.Visible;
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
                 MyThesesButton.Visibility = Visibility.Visible;
                 MembersButton.Visibility = Visibility.Collapsed;
 
-                // Set initial view to dashboard
-                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+                // Set initial view to profile
+                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
                 ThesisButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
                 MyThesesButton.Background = Brushes.Transparent;
                 
