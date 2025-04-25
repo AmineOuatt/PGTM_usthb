@@ -72,10 +72,10 @@ namespace DataGridNamespace.Admin
                 string selectedRoleStr = ((ComboBoxItem)RoleComboBox.SelectedItem).Content.ToString().ToLower();
                 RoleUtilisateur selectedRole = ConvertStringToRole(selectedRoleStr);
 
-                // Check if trying to change admin role
-                if (_user.Role == RoleUtilisateur.Admin && selectedRole != RoleUtilisateur.Admin)
+                // Check if trying to change admin@yourapp.com
+                if (_user.Email.ToLower() == "admin@yourapp.com")
                 {
-                    MessageBox.Show("Cannot change the role of an administrator account.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Cannot modify the super admin account.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
