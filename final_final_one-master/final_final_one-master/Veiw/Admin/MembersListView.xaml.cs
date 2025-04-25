@@ -22,6 +22,8 @@ namespace DataGridNamespace.Admin
         private int _itemsPerPage = 10;
         private int _totalPages;
         private bool isDataLoaded = false;
+        private Popup filterPopup; // Declare filterPopup as a class-level variable
+
 
         public MembersListView()
         {
@@ -315,10 +317,10 @@ namespace DataGridNamespace.Admin
             roleFilterComboBox.Items.Add("SimpleUser");
             roleFilterComboBox.Items.Add("Enseignant");
 
-            // Set default value
+            // Set the default value
             roleFilterComboBox.SelectedIndex = 0;
 
-            // Define the button for closing the filter dropdown
+            // Define the button for applying the filter
             Button applyFilterButton = new Button
             {
                 Content = "Apply Filter",
@@ -326,33 +328,41 @@ namespace DataGridNamespace.Admin
                 Width = 100,
                 Height = 35
             };
+
+            // Event for applying the filter and closing the popup
             applyFilterButton.Click += (s, args) =>
             {
                 ApplyRoleFilter(roleFilterComboBox.SelectedItem.ToString());
+                filterPopup.IsOpen = false; // Close the popup after applying filter
             };
 
-            // Display the ComboBox and button within a StackPanel
+            // StackPanel to hold ComboBox and Apply Filter button
             StackPanel filterStackPanel = new StackPanel();
             filterStackPanel.Children.Add(roleFilterComboBox);
             filterStackPanel.Children.Add(applyFilterButton);
 
-            // Create the Popup to show the dropdown
-            Popup filterPopup = new Popup
+            // Create and display the Popup
+            filterPopup = new Popup
             {
                 Child = filterStackPanel,
                 PlacementTarget = RoleFilterButton,
                 Placement = PlacementMode.Bottom
             };
 
-            filterPopup.IsOpen = true;
+            filterPopup.IsOpen = true; // Open the popup
         }
+
+
+
+
+
 
         private void ApplyRoleFilter(string selectedRole)
         {
             // Apply the role filter logic here
             if (selectedRole == "All Roles")
             {
-                membersViewSource.View.Filter = null; // No filter, show all
+                membersViewSource.View.Filter = null; // No filter, show all members
             }
             else
             {
@@ -360,7 +370,7 @@ namespace DataGridNamespace.Admin
                 {
                     if (obj is User user)
                     {
-                        return user.Role.ToString() == selectedRole;
+                        return user.Role.ToString() == selectedRole; // Filter based on selected role
                     }
                     return false;
                 };
@@ -369,6 +379,15 @@ namespace DataGridNamespace.Admin
             // Refresh the DataGrid with the applied filter
             membersViewSource.View.Refresh();
         }
+
+
+
+
+
+
+
+
+
         private void MembersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Handle the selection change logic here
