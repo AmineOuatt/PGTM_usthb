@@ -56,29 +56,30 @@
 
 
         <!-- Button Style for Actions (Edit/Delete) -->
-        <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="8"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#F3F4F6"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+       <Style x:Key="ActionButtonStyle" TargetType="Button">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="8"/>
+    <Setter Property="Margin" Value="0,0,8,0"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="Button">
+                <Border Background="{TemplateBinding Background}"
+                        CornerRadius="6"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+            <Setter Property="Background" Value="#F3F4F6"/>
+        </Trigger>
+    </Style.Triggers>
+</Style>
+
 
         <!-- Pagination Button Style -->
         <Style x:Key="PaginationButtonStyle" TargetType="Button">
@@ -114,6 +115,45 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="ModernFilterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#008080"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="120"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="20">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#006666"/>
+                    <Setter Property="BorderBrush" Value="#004d4d"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#004d4d"/>
+                    <Setter Property="BorderBrush" Value="#003333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+
 
         <!-- Active Page Button Style -->
         <Style x:Key="ActivePageButtonStyle" TargetType="Button" BasedOn="{StaticResource PaginationButtonStyle}">
@@ -239,15 +279,15 @@
             </Path>
 
             <!-- Filter Button for Roles -->
-            <Button x:Name="RoleFilterButton" 
-            Content="Filter by Role"
-            Width="120"
-            Height="40"
-            Style="{StaticResource ActionButtonStyle}"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Right"
-            Grid.Column="1"
-            Click="RoleFilterButton_Click"/>
+            <Button x:Name="RoleFilterButton"
+        Content="Filter by Role"
+        Style="{StaticResource ModernFilterButtonStyle}"
+        VerticalAlignment="Center"
+        HorizontalAlignment="Right"
+        Grid.Column="1"
+        Click="RoleFilterButton_Click"/>
+
+
         </Grid>
 
         <!-- Members DataGrid -->
@@ -358,6 +398,7 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
+
 
         <!-- Pagination Controls -->
         <Border Grid.Row="3"  
