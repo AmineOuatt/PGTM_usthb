@@ -63,8 +63,8 @@
 
         <!-- Circular Action Button Style -->
         <Style x:Key="CircularActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="40"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Background" Value="#008080"/>
@@ -77,7 +77,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="14">
+                                CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -333,7 +333,7 @@
                                             Click="ViewDetailsButton_Click"
                                             ToolTip="View Details">
                                         <TextBlock Text="ℹ" 
-                                                  FontSize="16"
+                                                  FontSize="18"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
@@ -344,7 +344,7 @@
                                             Click="ViewPdfButton_Click"
                                             ToolTip="View PDF">
                                         <TextBlock Text="📄" 
-                                                  FontSize="16"
+                                                  FontSize="18"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
@@ -355,7 +355,7 @@
                                             Click="SendMessageButton_Click"
                                             ToolTip="Send Message">
                                         <TextBlock Text="✉" 
-                                                  FontSize="16"
+                                                  FontSize="18"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
@@ -366,7 +366,7 @@
                                             Click="RemoveFavoriteButton_Click"
                                             ToolTip="Remove from Favorites">
                                         <TextBlock Text="♡" 
-                                                  FontSize="16"
+                                                  FontSize="18"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>

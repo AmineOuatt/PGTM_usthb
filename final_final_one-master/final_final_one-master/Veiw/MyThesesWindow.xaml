@@ -30,9 +30,10 @@
 
         <!-- Button Style -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Padding" Value="12,4"/>
-            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="2,0"/>
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -232,38 +233,84 @@
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesesDataGrid_SelectionChanged">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" 
-                                      Binding="{Binding Id}" 
-                                      Width="60"/>
                     <DataGridTextColumn Header="Title" 
                                       Binding="{Binding Titre}" 
                                       Width="*"/>
                     <DataGridTextColumn Header="Author" 
                                       Binding="{Binding Auteur}" 
                                       Width="150"/>
-                    <DataGridTextColumn Header="Specialty" 
+                    <DataGridTextColumn Header="Speciality" 
                                       Binding="{Binding Speciality}" 
-                                      Width="120"/>
+                                      Width="150"/>
                     <DataGridTextColumn Header="Type" 
                                       Binding="{Binding Type}" 
                                       Width="100"/>
                     <DataGridTextColumn Header="Year" 
                                       Binding="{Binding Annee, StringFormat=yyyy}" 
-                                      Width="80"/>
+                                      Width="100"/>
+                    <DataGridTemplateColumn Header="Actions" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- View Details Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewDetailsButton_Click"
+                                            ToolTip="View Details">
+                                        <TextBlock Text="ℹ️" 
+                                                  FontSize="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- View PDF Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewPdfButton_Click"
+                                            ToolTip="View PDF">
+                                        <TextBlock Text="📄" 
+                                                  FontSize="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Favorite Button -->
+                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="FavoriteButton_Click"
+                                            ToolTip="Add to Favorites">
+                                        <TextBlock Text="⭐" 
+                                                  FontSize="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Edit Button -->
+                                    <Button Style="{StaticResource EditButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="EditButton_Click"
+                                            ToolTip="Edit Thesis">
+                                        <TextBlock Text="✏️" 
+                                                  FontSize="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Delete Button -->
+                                    <Button Style="{StaticResource DeleteButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="DeleteButton_Click"
+                                            ToolTip="Delete Thesis">
+                                        <TextBlock Text="🗑️" 
+                                                  FontSize="18"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="Margin" Value="0,4,0,0"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#F1F9F9"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#E6F3F3"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.RowStyle>
             </DataGrid>
         </Border>
     </Grid>

@@ -845,14 +845,14 @@ namespace DataGridNamespace.Admin
             int thesisId = 0;
             var context = btn.DataContext;
 
-            // A) If this row’s DataContext is a Favoris object:
+            // A) If this row's DataContext is a Favoris object:
             if (context is FavorisModels.Favoris fav && fav.These != null)
             {
                 thesisId = fav.These.Id;
             }
             else if (context != null)
             {
-                // B) Try reflection: look for a “These” property with an Id
+                // B) Try reflection: look for a "These" property with an Id
                 var theseProp = context.GetType().GetProperty("These", BindingFlags.Public | BindingFlags.Instance);
                 if (theseProp?.GetValue(context) is object theseObj)
                 {
@@ -861,7 +861,7 @@ namespace DataGridNamespace.Admin
                         thesisId = nestedId;
                 }
 
-                // C) If still zero, try a direct “Id” property on the DataContext
+                // C) If still zero, try a direct "Id" property on the DataContext
                 if (thesisId == 0)
                 {
                     var idProp2 = context.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
@@ -883,7 +883,7 @@ namespace DataGridNamespace.Admin
 
             try
             {
-                // 3) Fetch the student’s university email from the database
+                // 3) Fetch the student's university email from the database
                 string email = await GetOwnerEmailAsync(thesisId);
                 if (string.IsNullOrWhiteSpace(email))
                     throw new Exception("University email not found in the database.");
@@ -950,6 +950,89 @@ namespace DataGridNamespace.Admin
 
             var result = await cmd.ExecuteScalarAsync();
             return result?.ToString() ?? string.Empty;
+        }
+
+        private void SetupDataGridColumns()
+        {
+            if (FavoritesDataGrid != null)
+            {
+                // Clear existing columns
+                FavoritesDataGrid.Columns.Clear();
+
+                // Add standard columns
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "ID", Binding = new Binding("These.Id"), Width = 60 });
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Title", Binding = new Binding("These.Titre"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Author", Binding = new Binding("These.Auteur"), Width = 150 });
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Specialty", Binding = new Binding("These.Speciality"), Width = 120 });
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Type", Binding = new Binding("These.Type"), Width = 100 });
+                FavoritesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new Binding("These.Annee") { StringFormat = "yyyy" }, Width = 80 });
+
+                // Create Actions column
+                var actionsColumn = new DataGridTemplateColumn { Header = "Actions", Width = 280 };
+                var cellTemplate = new DataTemplate();
+                var stackPanelFactory = new FrameworkElementFactory(typeof(StackPanel));
+                stackPanelFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+                stackPanelFactory.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+
+                // Add View Details button
+                AddButtonToTemplate(stackPanelFactory, "ℹ️", "View Details", "ViewDetailsButton_Click", "ActionButtonStyle");
+
+                // Add View PDF button
+                AddButtonToTemplate(stackPanelFactory, "📄", "View PDF", "ViewPdfButton_Click", "ActionButtonStyle");
+
+                // Add Message button
+                AddButtonToTemplate(stackPanelFactory, "✉️", "Send Message", "SendMessageButton_Click", "ActionButtonStyle");
+
+                // Add Remove from Favorites button
+                AddButtonToTemplate(stackPanelFactory, "🗑️", "Remove from Favorites", "RemoveFavoriteButton_Click", "DeleteButtonStyle");
+
+                cellTemplate.VisualTree = stackPanelFactory;
+                actionsColumn.CellTemplate = cellTemplate;
+                FavoritesDataGrid.Columns.Add(actionsColumn);
+            }
+        }
+
+        private void AddButtonToTemplate(FrameworkElementFactory parent, string emoji, string tooltip, string clickHandler, string styleKey)
+        {
+            var buttonFactory = new FrameworkElementFactory(typeof(Button));
+            buttonFactory.SetValue(Button.StyleProperty, Application.Current.Resources[styleKey]);
+            buttonFactory.SetValue(Button.TagProperty, new Binding());
+            buttonFactory.SetValue(Button.ToolTipProperty, tooltip);
+            buttonFactory.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
+            buttonFactory.SetValue(Button.WidthProperty, 30.0);
+            buttonFactory.SetValue(Button.HeightProperty, 30.0);
+
+            // Set the click event handler using AddHandler
+            buttonFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler((s, e) => 
+            {
+                if (s is Button button && button.Tag is Favoris favorite)
+                {
+                    switch (clickHandler)
+                    {
+                        case "ViewDetailsButton_Click":
+                            ViewDetailsButton_Click(button, e);
+                            break;
+                        case "ViewPdfButton_Click":
+                            ViewPdfButton_Click(button, e);
+                            break;
+                        case "SendMessageButton_Click":
+                            SendMessageButton_Click(button, e);
+                            break;
+                        case "RemoveFavoriteButton_Click":
+                            RemoveFavoriteButton_Click(button, e);
+                            break;
+                    }
+                }
+            }));
+
+            var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textBlockFactory.SetValue(TextBlock.TextProperty, emoji);
+            textBlockFactory.SetValue(TextBlock.FontSizeProperty, 14.0);
+            textBlockFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            textBlockFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
+
+            buttonFactory.AppendChild(textBlockFactory);
+            parent.AppendChild(buttonFactory);
         }
     }
 }

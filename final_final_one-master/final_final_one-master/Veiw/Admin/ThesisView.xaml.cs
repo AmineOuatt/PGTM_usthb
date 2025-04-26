@@ -1050,14 +1050,14 @@ namespace DataGridNamespace.Admin
             int thesisId = 0;
             var context = btn.DataContext;
 
-            // A) If this row’s DataContext is a Favoris object:
+            // A) If this row's DataContext is a Favoris object:
             if (context is FavorisModels.Favoris fav && fav.These != null)
             {
                 thesisId = fav.These.Id;
             }
             else if (context != null)
             {
-                // B) Try reflection: look for a “These” property with an Id
+                // B) Try reflection: look for a "These" property with an Id
                 var theseProp = context.GetType().GetProperty("These", BindingFlags.Public | BindingFlags.Instance);
                 if (theseProp?.GetValue(context) is object theseObj)
                 {
@@ -1066,7 +1066,7 @@ namespace DataGridNamespace.Admin
                         thesisId = nestedId;
                 }
 
-                // C) If still zero, try a direct “Id” property on the DataContext
+                // C) If still zero, try a direct "Id" property on the DataContext
                 if (thesisId == 0)
                 {
                     var idProp2 = context.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
@@ -1088,7 +1088,7 @@ namespace DataGridNamespace.Admin
 
             try
             {
-                // 3) Fetch the student’s university email from the database
+                // 3) Fetch the student's university email from the database
                 string email = await GetOwnerEmailAsync(thesisId);
                 if (string.IsNullOrWhiteSpace(email))
                     throw new Exception("University email not found in the database.");
@@ -1285,28 +1285,28 @@ namespace DataGridNamespace.Admin
                 ThesisDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new Binding("Annee") { StringFormat = "yyyy" }, Width = 80 });
 
                 // Create Actions column
-                var actionsColumn = new DataGridTemplateColumn { Header = "Actions", Width = 340 };
+                var actionsColumn = new DataGridTemplateColumn { Header = "Actions", Width = 280 };
                 var cellTemplate = new DataTemplate();
                 var stackPanelFactory = new FrameworkElementFactory(typeof(StackPanel));
                 stackPanelFactory.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
                 stackPanelFactory.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
 
                 // Add View Details button
-                AddButtonToTemplate(stackPanelFactory, "ℹ", "View Details", "ViewDetailsButton_Click", "ActionButtonStyle");
+                AddButtonToTemplate(stackPanelFactory, "ℹ️", "View Details", "ViewDetailsButton_Click", "ActionButtonStyle");
 
                 // Add View PDF button
                 AddButtonToTemplate(stackPanelFactory, "📄", "View PDF", "ViewPdfButton_Click", "ActionButtonStyle");
 
                 // Add Message button
-                AddButtonToTemplate(stackPanelFactory, "✉", "Send Message", "SendMessageButton_Click", "ActionButtonStyle");
+                AddButtonToTemplate(stackPanelFactory, "✉️", "Send Message", "SendMessageButton_Click", "ActionButtonStyle");
 
                 // Add Favorite button
-                AddButtonToTemplate(stackPanelFactory, "★", "Add to Favorites", "FavoriteButton_Click", "ActionButtonStyle");
+                AddButtonToTemplate(stackPanelFactory, "⭐", "Add to Favorites", "FavoriteButton_Click", "ActionButtonStyle");
 
                 // Add Delete button only for Admin
                 if (DataGridNamespace.Session.CurrentUserRole == RoleUtilisateur.Admin)
                 {
-                    AddButtonToTemplate(stackPanelFactory, "🗑", "Delete Thesis", "DeleteButton_Click", "DeleteButtonStyle");
+                    AddButtonToTemplate(stackPanelFactory, "🗑️", "Delete Thesis", "DeleteButton_Click", "DeleteButtonStyle");
                 }
 
                 cellTemplate.VisualTree = stackPanelFactory;
@@ -1315,15 +1315,15 @@ namespace DataGridNamespace.Admin
             }
         }
 
-        private void AddButtonToTemplate(FrameworkElementFactory parent, string content, string tooltip, string clickHandler, string styleKey)
+        private void AddButtonToTemplate(FrameworkElementFactory parent, string emoji, string tooltip, string clickHandler, string styleKey)
         {
             var buttonFactory = new FrameworkElementFactory(typeof(Button));
             buttonFactory.SetValue(Button.StyleProperty, FindResource(styleKey));
             buttonFactory.SetValue(Button.TagProperty, new Binding());
             buttonFactory.SetValue(Button.ToolTipProperty, tooltip);
             buttonFactory.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            buttonFactory.SetValue(Button.WidthProperty, 55.0);
-            buttonFactory.SetValue(Button.HeightProperty, 40.0);
+            buttonFactory.SetValue(Button.WidthProperty, 40.0);
+            buttonFactory.SetValue(Button.HeightProperty, 35.0);
 
             // Set the click event handler using AddHandler
             buttonFactory.AddHandler(Button.ClickEvent, new RoutedEventHandler((s, e) => 
@@ -1352,8 +1352,8 @@ namespace DataGridNamespace.Admin
             }));
 
             var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
-            textBlockFactory.SetValue(TextBlock.TextProperty, content);
-            textBlockFactory.SetValue(TextBlock.FontSizeProperty, 22.0);
+            textBlockFactory.SetValue(TextBlock.TextProperty, emoji);
+            textBlockFactory.SetValue(TextBlock.FontSizeProperty, 18.0);
             textBlockFactory.SetValue(TextBlock.HorizontalAlignmentProperty, HorizontalAlignment.Center);
             textBlockFactory.SetValue(TextBlock.VerticalAlignmentProperty, VerticalAlignment.Center);
 
