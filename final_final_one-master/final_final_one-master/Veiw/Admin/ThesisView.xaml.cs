@@ -12,6 +12,8 @@ using ThesesModels;
 using FavorisModels;
 using System.Windows.Input;
 using UserModels;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace DataGridNamespace.Admin
 {
@@ -1038,29 +1040,123 @@ namespace DataGridNamespace.Admin
                 ThesisCounterText.Text = $"({totalItems} theses)";
             }
         }
-        
-        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
+
+        private async void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
+            if (sender is not Button btn)
+                return;
+
+            // 1) Extract the thesis ID from the DataContext
+            int thesisId = 0;
+            var context = btn.DataContext;
+
+            // A) If this row’s DataContext is a Favoris object:
+            if (context is FavorisModels.Favoris fav && fav.These != null)
+            {
+                thesisId = fav.These.Id;
+            }
+            else if (context != null)
+            {
+                // B) Try reflection: look for a “These” property with an Id
+                var theseProp = context.GetType().GetProperty("These", BindingFlags.Public | BindingFlags.Instance);
+                if (theseProp?.GetValue(context) is object theseObj)
+                {
+                    var idProp = theseObj.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
+                    if (idProp?.GetValue(theseObj) is int nestedId)
+                        thesisId = nestedId;
+                }
+
+                // C) If still zero, try a direct “Id” property on the DataContext
+                if (thesisId == 0)
+                {
+                    var idProp2 = context.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);
+                    if (idProp2?.GetValue(context) is int directId)
+                        thesisId = directId;
+                }
+            }
+
+            // 2) If no valid ID was found, warn and exit
+            if (thesisId <= 0)
+            {
+                MessageBox.Show(
+                    "Could not determine the thesis ID for this row.",
+                    "Warning",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
-                // Get the thesis object from the button tag
-                if (sender is Button button && button.Tag is Theses thesis)
-                {
-                    // Create and show the message window
-                    var messageWindow = new MessageWindow();
-                    messageWindow.Owner = Window.GetWindow(this);
-                    messageWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    messageWindow.SetThesis(thesis.Id, thesis.Titre);
-                    
-                    messageWindow.ShowDialog();
-                }
+                // 3) Fetch the student’s university email from the database
+                string email = await GetOwnerEmailAsync(thesisId);
+                if (string.IsNullOrWhiteSpace(email))
+                    throw new Exception("University email not found in the database.");
+
+                // 4) Open Gmail compose in the default browser
+                OpenGmail(email);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error sending message: {ex.Message}");
-                MessageBox.Show($"Error sending message: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Error: {ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
+
+        private static void OpenGmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                MessageBox.Show(
+                    "No email address is available for this student.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            string url = $"https://mail.google.com/mail/?view=cm&fs=1&to={Uri.EscapeDataString(email)}";
+
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true   // ensures the URL opens in the default browser
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to open browser: {ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private static async Task<string> GetOwnerEmailAsync(int thesisId)
+        {
+            const string sql = @"
+        SELECT u.email
+          FROM theses t
+          JOIN users  u ON u.id = t.user_id
+        WHERE t.id = @tid
+        LIMIT 1;";
+
+            await using var conn = new MySqlConnection(AppConfig.CloudSqlConnectionString);
+            await conn.OpenAsync();
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@tid", thesisId);
+
+            var result = await cmd.ExecuteScalarAsync();
+            return result?.ToString() ?? string.Empty;
+        }
+    
 
         private void DeleteThesis(object sender, RoutedEventArgs e)
         {
