@@ -11,13 +11,13 @@
     <UserControl.Resources>
         <!-- Search TextBox Style -->
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="30,5,10,5"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="25,4,8,4"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="13"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="#005555"/>
@@ -31,9 +31,9 @@
 
         <!-- Button Style -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Margin" Value="4,0"/>
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -45,6 +45,39 @@
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#006666"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#004444"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Circular Action Button Style -->
+        <Style x:Key="CircularActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Background" Value="#008080"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -75,7 +108,7 @@
         </Style>
 
         <!-- Delete Button Style -->
-        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource CircularActionButtonStyle}">
             <Setter Property="Background" Value="#E74C3C"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -98,7 +131,7 @@
             <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="RowHeight" Value="40"/>
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
@@ -110,13 +143,26 @@
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
 
+        <!-- DataGrid Row Style -->
+        <Style x:Key="ThesisRowStyle" TargetType="DataGridRow">
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F9F9"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E6F3F3"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- DataGrid Column Header Style -->
         <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Setter Property="BorderBrush" Value="#006666"/>
             <Style.Triggers>
@@ -128,7 +174,7 @@
 
         <!-- DataGrid Cell Style -->
         <Style x:Key="CellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
@@ -144,9 +190,9 @@
 
         <!-- Pagination Button Style -->
         <Style x:Key="PaginationButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -185,9 +231,9 @@
 
         <!-- ComboBox Style -->
         <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -215,7 +261,7 @@
 
         <!-- Header with Title and Search Bar -->
         <Grid Grid.Row="0">
-            <Border Background="#008080" Height="80">
+            <Border Background="#008080" Height="65">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -224,28 +270,28 @@
                     </Grid.ColumnDefinitions>
                     
                     <!-- Title -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                        <TextBlock Text="Thesis Management" FontSize="24" FontWeight="SemiBold" Foreground="White"/>
-                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="14" Foreground="#E0E0E0" VerticalAlignment="Center" Margin="10,5,0,0"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock Text="Thesis Management" FontSize="20" FontWeight="SemiBold" Foreground="White"/>
+                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="12" Foreground="#E0E0E0" VerticalAlignment="Center" Margin="6,3,0,0"/>
                     </StackPanel>
                     
                     <!-- Refresh Button -->
                     <Button Grid.Column="1" x:Name="RefreshButton" 
                             Style="{StaticResource ActionButtonStyle}"
-                            Content="Refresh" Margin="0,0,10,0"
+                            Content="Refresh" Margin="0,0,6,0"
                             Click="RefreshButton_Click"/>
                     
                     <!-- Add Thesis Button -->
                     <Button Grid.Column="2" x:Name="AddThesisButton" 
                             Style="{StaticResource AddButtonStyle}"
-                            Content="Add Thesis" Margin="0,0,20,0"
+                            Content="Add Thesis" Margin="0,0,12,0"
                             Click="AddThesisButton_Click"/>
                 </Grid>
             </Border>
         </Grid>
 
         <!-- Search and Filter Section -->
-        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="20,15">
+        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -310,14 +356,88 @@
         </Border>
 
         <!-- Thesis DataGrid -->
-        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="20,10,20,10" CornerRadius="4">
+        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
             <DataGrid x:Name="ThesisDataGrid" 
                       Style="{StaticResource ThesisDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesisDataGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" 
+                                        Width="60"/>
+                    <DataGridTextColumn Header="Title" 
+                                        Binding="{Binding Titre}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Author" 
+                                        Binding="{Binding Auteur}" 
+                                        Width="150"/>
+                    <DataGridTextColumn Header="Specialty" 
+                                        Binding="{Binding Speciality}" 
+                                        Width="100"/>
+                    <DataGridTextColumn Header="Type" 
+                                        Binding="{Binding Type}" 
+                                        Width="100"/>
+                    <DataGridTextColumn Header="Year" 
+                                        Binding="{Binding Annee, StringFormat=yyyy}" 
+                                        Width="80"/>
+
+                    <!-- Actions Column -->
+                    <DataGridTemplateColumn Header="Actions" Width="200">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- View Details Button -->
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewDetailsButton_Click"
+                                            ToolTip="View Details">
+                                        <TextBlock Text="ℹ" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- View PDF Button -->
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="ViewPdfButton_Click"
+                                            ToolTip="View PDF">
+                                        <TextBlock Text="📄" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+                                    
+                                    <!-- Message Button -->
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="SendMessageButton_Click"
+                                            ToolTip="Send Message">
+                                        <TextBlock Text="✉" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Delete Button -->
+                                    <Button Style="{StaticResource DeleteButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="DeleteButton_Click"
+                                            ToolTip="Delete Thesis">
+                                        <TextBlock Text="🗑" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
+                        <Setter Property="Margin" Value="0,4,0,0"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#F1F9F9"/>
@@ -335,7 +455,7 @@
         <Border Grid.Row="3" 
                 BorderBrush="#E5E7EB" 
                 BorderThickness="0,1,0,0" 
-                Padding="0,10,0,20"
+                Padding="0,6,0,12"
                 Background="#F9FAFB"
                 CornerRadius="0,0,8,8">
             <StackPanel Orientation="Horizontal" 

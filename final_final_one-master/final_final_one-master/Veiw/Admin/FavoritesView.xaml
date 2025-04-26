@@ -11,13 +11,13 @@
     <UserControl.Resources>
         <!-- Search TextBox Style -->
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="30,5,10,5"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="25,4,8,4"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="13"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="#005555"/>
@@ -31,9 +31,9 @@
 
         <!-- Button Style -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Margin" Value="4,0"/>
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -61,8 +61,41 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Circular Action Button Style -->
+        <Style x:Key="CircularActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Background" Value="#008080"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#006666"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#004444"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Remove Button Style -->
-        <Style x:Key="RemoveButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+        <Style x:Key="RemoveButtonStyle" TargetType="Button" BasedOn="{StaticResource CircularActionButtonStyle}">
             <Setter Property="Background" Value="#E74C3C"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -85,7 +118,7 @@
             <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="RowHeight" Value="40"/>
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
@@ -102,8 +135,8 @@
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Setter Property="BorderBrush" Value="#006666"/>
             <Style.Triggers>
@@ -115,7 +148,7 @@
 
         <!-- DataGrid Cell Style -->
         <Style x:Key="CellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
@@ -131,9 +164,9 @@
 
         <!-- Pagination Button Style -->
         <Style x:Key="PaginationButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -172,9 +205,9 @@
 
         <!-- ComboBox Style -->
         <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Width" Value="150"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -198,11 +231,11 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#008080" Padding="20,15" CornerRadius="8,8,0,0">
+        <Border Grid.Row="0" Background="#008080" Padding="12,10" CornerRadius="8,8,0,0">
             <Grid>
                 <TextBlock Text="My Favorites" 
                        Foreground="White" 
-                       FontSize="24" 
+                       FontSize="20" 
                        FontWeight="Bold"
                        VerticalAlignment="Center"/>
                 <TextBlock x:Name="FavoritesCounterText"
@@ -210,12 +243,12 @@
                        HorizontalAlignment="Right" 
                        VerticalAlignment="Center"
                        Foreground="White" 
-                       FontSize="14"/>
+                       FontSize="12"/>
             </Grid>
         </Border>
 
         <!-- Search and Filter Section -->
-        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="20,15">
+        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -253,24 +286,15 @@
                 </ComboBox>
 
                 <!-- Refresh Button -->
-                <Button x:Name="RefreshButton" 
-                        Grid.Column="2"
+                <Button Grid.Column="2" x:Name="RefreshButton" 
                         Style="{StaticResource ActionButtonStyle}"
-                        Click="RefreshButton_Click"
-                        Margin="10,0,0,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⟳" 
-                                  FontSize="16" 
-                                  VerticalAlignment="Center"
-                                  Margin="0,0,5,0"/>
-                        <TextBlock Text="Refresh"/>
-                    </StackPanel>
-                </Button>
+                        Content="Refresh" Margin="0,0,6,0"
+                        Click="RefreshButton_Click"/>
             </Grid>
         </Border>
 
         <!-- Favorites DataGrid -->
-        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="20,10,20,10" CornerRadius="4">
+        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
             <DataGrid x:Name="FavoritesDataGrid" 
                       Style="{StaticResource FavoritesDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
@@ -299,48 +323,39 @@
                                         Width="80"/>
 
                     <!-- Actions Column -->
-                    <DataGridTemplateColumn Header="Actions" Width="280">
+                    <DataGridTemplateColumn Header="Actions" Width="200">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                     <!-- View Details Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
                                             Tag="{Binding}"
                                             Click="ViewDetailsButton_Click"
-                                            ToolTip="View Details"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
+                                            ToolTip="View Details">
                                         <TextBlock Text="ℹ" 
-                                                  FontSize="22"
+                                                  FontSize="16"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
 
                                     <!-- View PDF Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
                                             Tag="{Binding}"
                                             Click="ViewPdfButton_Click"
-                                            ToolTip="View PDF"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
+                                            ToolTip="View PDF">
                                         <TextBlock Text="📄" 
-                                                  FontSize="22"
+                                                  FontSize="16"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
                                     
                                     <!-- Message Button -->
-                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                    <Button Style="{StaticResource CircularActionButtonStyle}"
                                             Tag="{Binding}"
                                             Click="SendMessageButton_Click"
-                                            ToolTip="Send Message"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
+                                            ToolTip="Send Message">
                                         <TextBlock Text="✉" 
-                                                  FontSize="22"
+                                                  FontSize="16"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
@@ -349,12 +364,9 @@
                                     <Button Style="{StaticResource RemoveButtonStyle}"
                                             Tag="{Binding}"
                                             Click="RemoveFavoriteButton_Click"
-                                            ToolTip="Remove from Favorites"
-                                            Margin="2,0"
-                                            Width="55"
-                                            Height="40">
+                                            ToolTip="Remove from Favorites">
                                         <TextBlock Text="♡" 
-                                                  FontSize="22"
+                                                  FontSize="16"
                                                   HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                                     </Button>
@@ -365,6 +377,7 @@
                 </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
+                        <Setter Property="Margin" Value="0,4,0,0"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#F1F9F9"/>
@@ -382,7 +395,7 @@
         <Border Grid.Row="3" 
                 BorderBrush="#E5E7EB" 
                 BorderThickness="0,1,0,0" 
-                Padding="0,10,0,20"
+                Padding="0,6,0,12"
                 Background="#F9FAFB"
                 CornerRadius="0,0,8,8">
             <StackPanel Orientation="Horizontal" 
