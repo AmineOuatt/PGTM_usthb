@@ -197,7 +197,7 @@ namespace DataGridNamespace
                 MyThesesButton.Background = Brushes.Transparent;
                 
                 // Load dashboard view by default
-                var dashboardView = new DashboardView();
+                var dashboardView = new Admin.DashboardView();
                 MainFrame.Navigate(dashboardView);
 
                 // Set up admin-specific event handlers
@@ -279,135 +279,62 @@ namespace DataGridNamespace
             }
         }
 
+        private void ResetAllButtonBackgrounds()
+        {
+            DashboardButton.Background = Brushes.Transparent;
+            ThesisButton.Background = Brushes.Transparent;
+            MembersButton.Background = Brushes.Transparent;
+            ProfileButton.Background = Brushes.Transparent;
+            FavoritesButton.Background = Brushes.Transparent;
+            MyThesesButton.Background = Brushes.Transparent;
+        }
+
         private void DashboardButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                ThesisButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
-                FavoritesButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = Brushes.Transparent;
-                
-                var dashboardView = new DashboardView();
-                MainFrame.Navigate(dashboardView);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading Dashboard view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var dashboardView = new Admin.DashboardView();
+            MainFrame.Navigate(dashboardView);
         }
 
         private void ThesisButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
-                FavoritesButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = Brushes.Transparent;
-                
-                // Load thesis view based on user role
-                if (currentUser.Role == RoleUtilisateur.Admin)
-                {
-                    var thesisView = new Admin.ThesisView();
-                    MainFrame.Navigate(thesisView);
-                }
-                else
-                {
-                    // For all other user types, use the admin thesis view with restricted rights
-                    var thesisView = new Admin.ThesisView();
-                    MainFrame.Navigate(thesisView);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading Thesis view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            ThesisButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var thesisView = new Admin.ThesisView();
+            MainFrame.Navigate(thesisView);
         }
 
         private void MembersButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                MembersButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
-                ThesisButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
-                FavoritesButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = Brushes.Transparent;
-                
-                var membersView = new MembersListView();
-                MainFrame.Navigate(membersView);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading Members view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            MembersButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var membersView = new Admin.MembersListView();
+            MainFrame.Navigate(membersView);
         }
 
         private void ProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                ThesisButton.Background = Brushes.Transparent;
-                FavoritesButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = Brushes.Transparent;
-                
-                var profileView = new ProfileView();
-                MainFrame.Navigate(profileView);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading Profile view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var profileView = new ProfileView();
+            MainFrame.Navigate(profileView);
         }
 
         private void FavoritesButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                FavoritesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-                DashboardButton.Background = Brushes.Transparent;
-                ThesisButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = Brushes.Transparent;
-                
-                // Load favorites view based on user role
-                var favoritesView = new Admin.FavoritesView();
-                MainFrame.Navigate(favoritesView);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading Favorites view: {ex.Message}", "Navigation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            FavoritesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var favoritesView = new Admin.FavoritesView();
+            MainFrame.Navigate(favoritesView);
         }
 
         private void MyThesesButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                // Reset all button backgrounds
-                DashboardButton.Background = Brushes.Transparent;
-                ThesisButton.Background = Brushes.Transparent;
-                MembersButton.Background = Brushes.Transparent;
-                ProfileButton.Background = Brushes.Transparent;
-                FavoritesButton.Background = Brushes.Transparent;
-                MyThesesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
-
-                // Navigate to My Theses view within MainWindow
-                var myThesesView = new MyThesesWindow();
-                MainFrame.Navigate(myThesesView);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading My Theses: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ResetAllButtonBackgrounds();
+            MyThesesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var myThesesView = new MyThesesWindow();
+            MainFrame.Navigate(myThesesView);
         }
 
         public void LogoutButton_Click(object sender, RoutedEventArgs e)
