@@ -63,10 +63,10 @@
 
         <!-- Circular Action Button Style -->
         <Style x:Key="CircularActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="35"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Margin" Value="1,0"/>
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -77,7 +77,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="14">
+                                CornerRadius="17.5">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
@@ -349,7 +349,8 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" 
                                         Binding="{Binding Id}" 
-                                        Width="60"/>
+                                        Width="60" 
+                                        HeaderStyle="{StaticResource ColumnHeaderStyle}" />
                     <DataGridTextColumn Header="Title" 
                                         Binding="{Binding Titre}" 
                                         Width="*"/>
@@ -364,10 +365,10 @@
                                         Width="100"/>
                     <DataGridTextColumn Header="Year" 
                                         Binding="{Binding Annee, StringFormat=yyyy}" 
-                                        Width="80"/>
+                                        Width="100"/>
 
                     <!-- Actions Column -->
-                    <DataGridTemplateColumn Header="Actions" Width="200">
+                    <DataGridTemplateColumn Header="Actions" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

@@ -4,11 +4,13 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Globalization;
 using MySql.Data.MySqlClient;
 using System.Linq;
 using System.Diagnostics;
 using UserModels;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 
 namespace DataGridNamespace.Admin
 {
@@ -89,10 +91,18 @@ namespace DataGridNamespace.Admin
                 }
 
                 // Calculate total pages based on the number of members and total count from the database
-                _totalPages = (int)Math.Ceiling((double)GetTotalMemberCount() / _itemsPerPage);
+                int totalCount = GetTotalMemberCount();
+                _totalPages = (int)Math.Ceiling((double)totalCount / _itemsPerPage);
+                
+                // Create a new CollectionViewSource for proper filtering and sorting
                 membersViewSource = new CollectionViewSource { Source = allMembers };
                 membersViewSource.Filter += MembersViewSource_Filter;
+                
+                // Set the ItemsSource to the filtered view
                 MembersDataGrid.ItemsSource = membersViewSource.View;
+
+                // Update the members counter text
+                MembersCounterText.Text = $"Total: {totalCount} Members";
 
                 UpdatePaginationControls(); // Update pagination buttons after loading the members
             }
@@ -218,7 +228,7 @@ namespace DataGridNamespace.Admin
             }
             else
             {
-                e.Accepted = true;
+                e.Accepted = false;
             }
         }
 
@@ -243,6 +253,16 @@ namespace DataGridNamespace.Admin
             else
             {
                 return RoleUtilisateur.SimpleUser;
+            }
+        }
+
+        private void MembersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Handle the selection change logic here
+            if (MembersDataGrid.SelectedItem is User selectedUser)
+            {
+                // For example, we can show details for the selected member
+                Debug.WriteLine($"Selected user: {selectedUser.Nom}");
             }
         }
 
@@ -348,13 +368,38 @@ namespace DataGridNamespace.Admin
             }
         }
 
-        private void MembersDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SendMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            // Handle the selection change logic here
-            if (MembersDataGrid.SelectedItem is User selectedUser)
+            if (sender is Button button && button.Tag is User user)
             {
-                // For example, we can show details for the selected member
-                Debug.WriteLine($"Selected user: {selectedUser.Nom}");
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(user.Email))
+                    {
+                        MessageBox.Show("No email address is available for this member.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    // Open Gmail compose in the default browser
+                    string url = $"https://mail.google.com/mail/?view=cm&fs=1&to={Uri.EscapeDataString(user.Email)}";
+
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = url,
+                            UseShellExecute = true   // ensures the URL opens in the default browser
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to open browser: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

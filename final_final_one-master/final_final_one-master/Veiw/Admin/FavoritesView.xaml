@@ -9,6 +9,7 @@
              d:DesignHeight="600" d:DesignWidth="800">
 
     <UserControl.Resources>
+        <local:IndexConverter x:Key="IndexConverter"/>
         <!-- Search TextBox Style -->
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
@@ -303,7 +304,8 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" 
                                         Binding="{Binding These.Id}" 
-                                        Width="60"/>
+                                        Width="60" 
+                                        HeaderStyle="{StaticResource ColumnHeaderStyle}" />
                     <DataGridTextColumn Header="Title" 
                                         Binding="{Binding These.Titre}" 
                                         Width="*"/>

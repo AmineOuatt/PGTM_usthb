@@ -20,9 +20,27 @@ using System.Windows.Media.Imaging;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Windows.Data;
+using System.Globalization;
 
 namespace DataGridNamespace
 {
+    public class IndexConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is int index)
+            {
+                return (index + 1).ToString();
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class MyThesesWindow : Page
     {
         private ObservableCollection<Theses> allTheses;
@@ -40,6 +58,11 @@ namespace DataGridNamespace
         private void SetupDataGridColumns()
         {
             ThesesDataGrid.Columns.Clear();
+            
+            // Add ID column
+            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "ID", Binding = new System.Windows.Data.Binding("Id"), Width = 60 });
+
+            // Add other columns
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Title", Binding = new System.Windows.Data.Binding("Titre"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Author", Binding = new System.Windows.Data.Binding("Auteur"), Width = 150 });
             ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Speciality", Binding = new System.Windows.Data.Binding("Speciality"), Width = 150 });
@@ -293,10 +316,12 @@ namespace DataGridNamespace
                     var detailsWindow = new Window
                     {
                         Title = "Thesis Details",
-                        Width = 800,
-                        Height = 600,
-                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                        Owner = Window.GetWindow(this)
+                        Width = 1000,
+                        Height = SystemParameters.PrimaryScreenHeight * 0.9,
+                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                        Owner = Window.GetWindow(this),
+                        WindowStyle = WindowStyle.SingleBorderWindow,
+                        ResizeMode = ResizeMode.CanResize
                     };
 
                     // Create the content

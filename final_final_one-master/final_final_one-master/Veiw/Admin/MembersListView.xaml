@@ -42,9 +42,8 @@
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Setter Property="BorderBrush" Value="#006666"/>
             <Style.Triggers>
@@ -55,31 +54,71 @@
         </Style>
 
 
-        <!-- Button Style for Actions (Edit/Delete) -->
-       <Style x:Key="ActionButtonStyle" TargetType="Button">
-    <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="Padding" Value="8"/>
-    <Setter Property="Margin" Value="0,0,8,0"/>
-    <Setter Property="Cursor" Value="Hand"/>
-    <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="Button">
-                <Border Background="{TemplateBinding Background}"
-                        CornerRadius="6"
-                        Padding="{TemplateBinding Padding}">
-                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-    <Style.Triggers>
-        <Trigger Property="IsMouseOver" Value="True">
-            <Setter Property="Background" Value="#F3F4F6"/>
-        </Trigger>
-    </Style.Triggers>
-</Style>
+        <!-- Button Style for Actions -->
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Margin" Value="1,0,1,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F3F4F6"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
+        <!-- Edit Button Style -->
+        <Style x:Key="EditButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#4CAF50"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E8E41"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#2E6B31"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Delete Button Style -->
+        <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#E74C3C"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#A12B1F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Message Button Style -->
+        <Style x:Key="MessageButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#1F6AA5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
         <!-- Pagination Button Style -->
         <Style x:Key="PaginationButtonStyle" TargetType="Button">
@@ -191,20 +230,23 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="RowBackground" Value="White"/>
             <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="RowHeight" Value="45"/>
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
             <Setter Property="CanUserDeleteRows" Value="False"/>
             <Setter Property="CanUserReorderColumns" Value="False"/>
-            <Setter Property="CanUserResizeColumns" Value="False"/>
             <Setter Property="CanUserResizeRows" Value="False"/>
             <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
 
         <!-- DataGrid Cell Style -->
         <Style x:Key="CellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
@@ -320,21 +362,29 @@
         </Border>
 
         <!-- Members DataGrid -->
-        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
+        <Border Grid.Row="2" 
+                BorderBrush="#E5E7EB" 
+                BorderThickness="1" 
+                Margin="12,6,12,6" 
+                CornerRadius="4"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
             <DataGrid x:Name="MembersDataGrid"
                       Style="{StaticResource MembersDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                       CellStyle="{StaticResource CellStyle}"
-                      SelectionChanged="MembersDataGrid_SelectionChanged">
+                      SelectionChanged="MembersDataGrid_SelectionChanged"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
                 <DataGrid.Columns>
                     <!-- ID Column -->
                     <DataGridTextColumn Header="ID" 
                                         Binding="{Binding Id}" 
-                                        Width="Auto" 
+                                        Width="60" 
                                         HeaderStyle="{StaticResource ColumnHeaderStyle}" />
 
                     <!-- Member Name Column with Avatar -->
-                    <DataGridTemplateColumn Header="Member" Width="*" HeaderStyle="{StaticResource ColumnHeaderStyle}">
+                    <DataGridTemplateColumn Header="Member" Width="250" HeaderStyle="{StaticResource ColumnHeaderStyle}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -357,7 +407,7 @@
                     <!-- Position Column (Role) -->
                     <DataGridTextColumn Header="Role" 
                                         Binding="{Binding Role}" 
-                                        Width="*" 
+                                        Width="120" 
                                         HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
 
                     <!-- Email Column -->
@@ -368,28 +418,42 @@
 
                     <!-- Actions Column -->
                     <DataGridTemplateColumn Header="Actions" 
-                                           Width="Auto" 
+                                           Width="120" 
                                            HeaderStyle="{StaticResource ColumnHeaderStyle}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Style="{StaticResource ActionButtonStyle}"
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <!-- Edit Button -->
+                                    <Button Style="{StaticResource EditButtonStyle}"
                                             Tag="{Binding}"
-                                            Click="EditButton_Click">
-                                        <Path Data="{StaticResource EditIconData}"
-                                              Width="16"
-                                              Height="16"
-                                              Fill="#6B7280"
-                                              Stretch="Uniform"/>
+                                            Click="EditButton_Click"
+                                            ToolTip="Edit Member">
+                                        <TextBlock Text="✏️" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
                                     </Button>
-                                    <Button Style="{StaticResource ActionButtonStyle}"
+
+                                    <!-- Delete Button -->
+                                    <Button Style="{StaticResource DeleteButtonStyle}"
                                             Tag="{Binding}"
-                                            Click="DeleteButton_Click">
-                                        <Path Data="{StaticResource DeleteIconData}"
-                                              Width="16"
-                                              Height="16"
-                                              Fill="#6B7280"
-                                              Stretch="Uniform"/>
+                                            Click="DeleteButton_Click"
+                                            ToolTip="Delete Member">
+                                        <TextBlock Text="🗑️" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                    </Button>
+
+                                    <!-- Message Button -->
+                                    <Button Style="{StaticResource MessageButtonStyle}"
+                                            Tag="{Binding}"
+                                            Click="SendMessageButton_Click"
+                                            ToolTip="Send Message">
+                                        <TextBlock Text="✉️" 
+                                                  FontSize="16"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>
                             </DataTemplate>

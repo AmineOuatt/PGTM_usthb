@@ -233,9 +233,13 @@
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesesDataGrid_SelectionChanged">
                 <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" 
+                                        Width="60" 
+                                        HeaderStyle="{StaticResource ColumnHeaderStyle}" />
                     <DataGridTextColumn Header="Title" 
-                                      Binding="{Binding Titre}" 
-                                      Width="*"/>
+                                        Binding="{Binding Titre}" 
+                                        Width="*"/>
                     <DataGridTextColumn Header="Author" 
                                       Binding="{Binding Auteur}" 
                                       Width="150"/>
