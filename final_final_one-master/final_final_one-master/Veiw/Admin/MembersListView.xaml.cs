@@ -357,6 +357,19 @@ namespace DataGridNamespace.Admin
                 Debug.WriteLine($"Selected user: {selectedUser.Nom}");
             }
         }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                LoadMembers();
+                MessageBox.Show("Members list refreshed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error refreshing members list: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
 

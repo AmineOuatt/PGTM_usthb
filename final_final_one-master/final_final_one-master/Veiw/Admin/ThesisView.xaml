@@ -261,7 +261,7 @@
 
         <!-- Header with Title and Search Bar -->
         <Grid Grid.Row="0">
-            <Border Background="#008080" Height="65">
+            <Border Background="#008080" Padding="12,10" CornerRadius="8,8,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -270,9 +270,9 @@
                     </Grid.ColumnDefinitions>
                     
                     <!-- Title -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
-                        <TextBlock Text="Thesis Management" FontSize="20" FontWeight="SemiBold" Foreground="White"/>
-                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="12" Foreground="#E0E0E0" VerticalAlignment="Center" Margin="6,3,0,0"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Thesis Management" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="12" Foreground="White" VerticalAlignment="Center" Margin="6,3,0,0"/>
                     </StackPanel>
                     
                     <!-- Refresh Button -->
@@ -297,7 +297,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Search Box -->
@@ -305,13 +304,12 @@
                     <TextBox x:Name="SearchTextBox" 
                              Style="{StaticResource SearchBoxStyle}"
                              TextChanged="SearchTextBox_TextChanged"/>
-                    <TextBlock Text="Search by title, author, specialty..." 
+                    <TextBlock Text="Search theses..." 
                                Margin="30,0,0,0"
                                Foreground="#666666"
                                IsHitTestVisible="False"
                                VerticalAlignment="Center"
-                               Visibility="{Binding Text, ElementName=SearchTextBox, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Inverse'}"
-                               />
+                               Visibility="{Binding Text, ElementName=SearchTextBox, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Inverse'}" />
                     <TextBlock Text="🔍" 
                                Margin="10,0,0,0"
                                Foreground="#666666"
@@ -334,24 +332,10 @@
                 <ComboBox x:Name="YearFilterComboBox" 
                           Grid.Column="2"
                           Style="{StaticResource FilterComboBoxStyle}"
-                          SelectionChanged="YearFilterComboBox_SelectionChanged">
+                          SelectionChanged="YearFilterComboBox_SelectionChanged"
+                          Margin="8,0,0,0">
                     <ComboBoxItem Content="All Years" IsSelected="True"/>
                 </ComboBox>
-
-                <!-- Refresh Button in the filter section -->
-                <Button x:Name="FilterRefreshButton" 
-                        Grid.Column="3"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Click="FilterRefreshButton_Click"
-                        Margin="10,0,0,0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="⟳" 
-                                   FontSize="16" 
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,5,0"/>
-                        <TextBlock Text="Refresh"/>
-                    </StackPanel>
-                </Button>
             </Grid>
         </Border>
 
@@ -452,7 +436,7 @@
         </Border>
 
         <!-- Pagination -->
-        <Border Grid.Row="3" 
+        <Border Grid.Row="3"  
                 BorderBrush="#E5E7EB" 
                 BorderThickness="0,1,0,0" 
                 Padding="0,6,0,12"

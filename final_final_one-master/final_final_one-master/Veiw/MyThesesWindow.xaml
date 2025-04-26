@@ -10,13 +10,13 @@
     <Page.Resources>
         <!-- Search TextBox Style -->
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="30,5,10,5"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="25,4,8,4"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="BorderBrush" Value="#008080"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="White"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="13"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="#005555"/>
@@ -30,9 +30,9 @@
 
         <!-- Button Style -->
         <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Padding" Value="12,4"/>
+            <Setter Property="Margin" Value="4,0"/>
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -97,7 +97,7 @@
             <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#E5E7EB"/>
-            <Setter Property="RowHeight" Value="45"/>
+            <Setter Property="RowHeight" Value="40"/>
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
@@ -114,8 +114,8 @@
             <Setter Property="Background" Value="#008080"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,0"/>
             <Setter Property="BorderBrush" Value="#006666"/>
             <Style.Triggers>
@@ -127,7 +127,7 @@
 
         <!-- DataGrid Cell Style -->
         <Style x:Key="CellStyle" TargetType="DataGridCell">
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
@@ -141,9 +141,9 @@
             </Style.Triggers>
         </Style>
 
-        <!-- ComboBox Style -->
+        <!-- Filter ComboBox Style -->
         <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="35"/>
             <Setter Property="Width" Value="150"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -167,28 +167,29 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header with Title -->
-        <Grid Grid.Row="0">
-            <Border Background="#008080" Height="80">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <!-- Title -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                        <TextBlock Text="My Theses" FontSize="24" FontWeight="SemiBold" Foreground="White"/>
-                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="14" Foreground="#E0E0E0" VerticalAlignment="Center" Margin="10,5,0,0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#008080" Padding="12,10" CornerRadius="8,8,0,0">
+            <Grid>
+                <TextBlock Text="My Theses" 
+                       Foreground="White" 
+                       FontSize="20" 
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+                <TextBlock x:Name="ThesisCounterText"
+                       Text="Total: 0 Theses" 
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Center"
+                       Foreground="White" 
+                       FontSize="12"/>
+            </Grid>
+        </Border>
 
         <!-- Search and Filter Section -->
-        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="20,15">
+        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -197,13 +198,12 @@
                     <TextBox x:Name="SearchTextBox" 
                              Style="{StaticResource SearchBoxStyle}"
                              TextChanged="SearchTextBox_TextChanged"/>
-                    <TextBlock Text="Search by title, author, specialty..." 
+                    <TextBlock Text="Search in theses..." 
                                Margin="30,0,0,0"
                                Foreground="#666666"
                                IsHitTestVisible="False"
                                VerticalAlignment="Center"
-                               Visibility="{Binding Text, ElementName=SearchTextBox, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Inverse'}"
-                               />
+                               Visibility="{Binding Text, ElementName=SearchTextBox, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Inverse'}" />
                     <TextBlock Text="🔍" 
                                Margin="10,0,0,0"
                                Foreground="#666666"
@@ -225,14 +225,35 @@
         </Border>
 
         <!-- Thesis DataGrid -->
-        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="20,10,20,10" CornerRadius="4">
+        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
             <DataGrid x:Name="ThesesDataGrid" 
                       Style="{StaticResource ThesisDataGridStyle}"
                       ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
                       CellStyle="{StaticResource CellStyle}"
                       SelectionChanged="ThesesDataGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                      Binding="{Binding Id}" 
+                                      Width="60"/>
+                    <DataGridTextColumn Header="Title" 
+                                      Binding="{Binding Titre}" 
+                                      Width="*"/>
+                    <DataGridTextColumn Header="Author" 
+                                      Binding="{Binding Auteur}" 
+                                      Width="150"/>
+                    <DataGridTextColumn Header="Specialty" 
+                                      Binding="{Binding Speciality}" 
+                                      Width="120"/>
+                    <DataGridTextColumn Header="Type" 
+                                      Binding="{Binding Type}" 
+                                      Width="100"/>
+                    <DataGridTextColumn Header="Year" 
+                                      Binding="{Binding Annee, StringFormat=yyyy}" 
+                                      Width="80"/>
+                </DataGrid.Columns>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
+                        <Setter Property="Margin" Value="0,4,0,0"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="#F1F9F9"/>

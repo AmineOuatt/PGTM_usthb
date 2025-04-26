@@ -256,66 +256,48 @@
         </Grid.RowDefinitions>
 
         <!-- Green Header Section for 'Members Management' -->
-        <Border Grid.Row="0" Background="#008080" Height="80">
-            <TextBlock Text="Members Management"
-                     FontSize="24"
-                     FontWeight="SemiBold"
-                     Foreground="White"
-                     VerticalAlignment="Center"
-                     Margin="30,0,0,0"/>
+        <Border Grid.Row="0" Background="#008080" Padding="12,10" CornerRadius="8,8,0,0">
+            <Grid>
+                <TextBlock Text="Members Management"
+                     Foreground="White" 
+                     FontSize="20" 
+                     FontWeight="Bold"
+                     VerticalAlignment="Center"/>
+                <TextBlock x:Name="MembersCounterText"
+                       Text="Total: 0 Members" 
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Center"
+                       Foreground="White" 
+                       FontSize="12"/>
+            </Grid>
         </Border>
 
         <!-- Search and Filter Section -->
-        <Border Grid.Row="1" Background="#F0FFFF" Padding="30,15">
+        <Border Grid.Row="1" Background="#F0FFFF" CornerRadius="0,0,0,0" Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Search Box with Icon -->
+                <!-- Search Box -->
                 <Grid Grid.Column="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Search Icon -->
-                    <Path Grid.Column="0" 
-                          Data="{StaticResource SearchIconData}" 
-                          Fill="#008080" 
-                          Width="20" 
-                          Height="20" 
-                          VerticalAlignment="Center" 
-                          Margin="10,0,0,0"/>
-
-                    <!-- Search TextBox -->
-                    <TextBox Grid.Column="1" 
-                             x:Name="SearchTextBox" 
-                             TextChanged="SearchTextBox_TextChanged">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox" BasedOn="{StaticResource SearchBoxStyle}">
-                                <Style.Triggers>
-                                    <Trigger Property="Text" Value="">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="TextBox">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}">
-                                                        <TextBlock Text="Search members..." 
-                                                                 Foreground="Gray"
-                                                                 Margin="10,0,0,0"
-                                                                 VerticalAlignment="Center"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
+                    <TextBox x:Name="SearchTextBox" 
+                             Style="{StaticResource SearchBoxStyle}"
+                             TextChanged="SearchTextBox_TextChanged"/>
+                    <TextBlock Text="Search members..." 
+                               Margin="30,0,0,0"
+                               Foreground="#666666"
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding Text, ElementName=SearchTextBox, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='Inverse'}" />
+                    <TextBlock Text="🔍" 
+                               Margin="10,0,0,0"
+                               Foreground="#666666"
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Center"
+                               FontSize="16"/>
                 </Grid>
 
                 <!-- Filter ComboBox -->
@@ -328,19 +310,22 @@
                     <ComboBoxItem Content="Etudiant"/>
                     <ComboBoxItem Content="SimpleUser"/>
                 </ComboBox>
+
+                <!-- Refresh Button -->
+                <Button Grid.Column="2" x:Name="RefreshButton" 
+                        Style="{StaticResource ActionButtonStyle}"
+                        Content="Refresh" Margin="0,0,6,0"
+                        Click="RefreshButton_Click"/>
             </Grid>
         </Border>
 
         <!-- Members DataGrid -->
-        <Border Grid.Row="2"
-                Background="White"
-                BorderThickness="0"
-                Margin="0">
+        <Border Grid.Row="2" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
             <DataGrid x:Name="MembersDataGrid"
                       Style="{StaticResource MembersDataGridStyle}"
-                      Margin="30,15"
-                      VerticalAlignment="Stretch"
-                      HorizontalAlignment="Stretch">
+                      ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                      CellStyle="{StaticResource CellStyle}"
+                      SelectionChanged="MembersDataGrid_SelectionChanged">
                 <DataGrid.Columns>
                     <!-- ID Column -->
                     <DataGridTextColumn Header="ID" 
@@ -418,8 +403,9 @@
         <Border Grid.Row="3"  
                 BorderBrush="#E5E7EB" 
                 BorderThickness="0,1,0,0" 
-                Padding="0,10,0,20"
-                Background="#F9FAFB">
+                Padding="0,6,0,12"
+                Background="#F9FAFB"
+                CornerRadius="0,0,8,8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <!-- Pagination Buttons (Previous/Next) -->
                 <Button x:Name="FirstPageButton" 
