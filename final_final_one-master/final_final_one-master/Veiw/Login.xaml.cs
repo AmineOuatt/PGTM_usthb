@@ -155,7 +155,48 @@ namespace MyProject
 
                 Debug.WriteLine($"Successfully authenticated with Firebase. UID: {firebaseUid}");
 
-                // Removed email verification check
+                // Check email verification - bypass for admin@yourapp.com
+                var userInfo = await GetUserInfo(idToken);
+                if (userInfo == null)
+                {
+                    MessageBox.Show("Failed to get user information. Please try again.", "Login Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Cursor = Cursors.Arrow;
+                    return;
+                }
+
+                // Skip email verification for admin@yourapp.com
+                if (!string.Equals(email.Trim(), "admin@yourapp.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!userInfo.EmailVerified)
+                    {
+                        var result = MessageBox.Show(
+                            "Your email is not verified. Would you like to resend the verification email?",
+                            "Email Not Verified",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning);
+
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            try
+                            {
+                                await SendEmailVerification(idToken);
+                                MessageBox.Show("Verification email has been sent. Please check your email and verify your account before logging in.",
+                                    "Verification Email Sent",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Information);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Failed to send verification email: {ex.Message}",
+                                    "Verification Error",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
+                            }
+                        }
+                        Cursor = Cursors.Arrow;
+                        return;
+                    }
+                }
 
                 string query = "SELECT id, nom, role, email FROM users WHERE firebase_uid = @FirebaseUid";
 
@@ -285,10 +326,6 @@ namespace MyProject
                 return;    
             }
 
-
-
-
-
             if (string.IsNullOrEmpty(txtUser_L2.Text))
             {
                 MessageBox.Show("Please enter a username.", "Registration Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -375,7 +412,7 @@ namespace MyProject
                     {
                         cmd.Parameters.AddWithValue("@Username", username);
                         cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Role", "SimpleUser");
+                        cmd.Parameters.AddWithValue("@Role", role);
                         cmd.Parameters.AddWithValue("@FirebaseUid", firebaseUid);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
@@ -390,10 +427,21 @@ namespace MyProject
                         cmd.CommandText = "SELECT LAST_INSERT_ID()";
                         int userId = Convert.ToInt32(cmd.ExecuteScalar());
 
+                        // Convert the role string to RoleUtilisateur enum
+                        RoleUtilisateur userRole = RoleUtilisateur.SimpleUser;
+                        if (string.Equals(role, "Etudiant", StringComparison.OrdinalIgnoreCase))
+                        {
+                            userRole = RoleUtilisateur.Etudiant;
+                        }
+                        else if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+                        {
+                            userRole = RoleUtilisateur.Admin;
+                        }
+
                         Session.Initialize(
                             userId,
                             username,
-                            RoleUtilisateur.SimpleUser,
+                            userRole,
                             firebaseUid,
                             idToken
                         );
@@ -413,8 +461,6 @@ namespace MyProject
             {
                 Cursor = Cursors.Arrow;
             }
-            
-
         }
 
 
@@ -534,6 +580,142 @@ namespace MyProject
             catch (Exception ex)
             {
                 Debug.WriteLine($"Exception during email verification: {ex.Message}");
+                throw;
+            }
+        }
+
+        private async void ForgotPasswordLink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var email = txtUser_L1.Text;
+            if (string.IsNullOrEmpty(email))
+            {
+                MessageBox.Show("Please enter your email address first.", "Forgot Password", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!IsValidEmail(email))
+            {
+                MessageBox.Show("Please enter a valid email address.", "Forgot Password", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.Wait;
+                await SendPasswordResetEmail(email);
+                MessageBox.Show($"A password reset link has been sent to {email}. Please check your email.", "Password Reset", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("No account found with this email address"))
+                {
+                    var result = MessageBox.Show(
+                        "No account found with this email address. Would you like to sign up for a new account?",
+                        "Account Not Found",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Navigate to sign-up form
+                        Layout1.Visibility = Visibility.Collapsed;
+                        Layout2.Visibility = Visibility.Visible;
+                        // Pre-fill the email field
+                        txtEmail_L2.Text = email;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Failed to send password reset email: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            finally
+            {
+                Cursor = Cursors.Arrow;
+            }
+        }
+
+        private async Task SendPasswordResetEmail(string email)
+        {
+            try
+            {
+                // Use the correct Firebase endpoint for password reset
+                string resetEndpoint = $"{AppConfig.FirebaseAuthBaseUrl}:sendOobCode?key={AppConfig.FirebaseApiKey}";
+
+                var requestData = new
+                {
+                    requestType = "PASSWORD_RESET",
+                    email = email,
+                    returnSecureToken = true
+                };
+
+                var jsonContent = JsonConvert.SerializeObject(requestData);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                // Log the request details
+                Debug.WriteLine("=== Password Reset Request Details ===");
+                Debug.WriteLine($"Endpoint: {resetEndpoint}");
+                Debug.WriteLine($"Request Data: {jsonContent}");
+                Debug.WriteLine($"API Key: {AppConfig.FirebaseApiKey.Substring(0, 5)}...");
+
+                var response = await httpClient.PostAsync(resetEndpoint, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // Log the response details
+                Debug.WriteLine("=== Password Reset Response Details ===");
+                Debug.WriteLine($"Status Code: {response.StatusCode}");
+                Debug.WriteLine($"Response Content: {responseContent}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorObj = JObject.Parse(responseContent);
+                    string errorMessage = errorObj["error"]["message"].ToString();
+                    
+                    // Log the error details
+                    Debug.WriteLine("=== Error Details ===");
+                    Debug.WriteLine($"Error Message: {errorMessage}");
+                    Debug.WriteLine($"Full Error Object: {errorObj}");
+
+                    // Check if the error is due to email not found
+                    if (errorMessage == "EMAIL_NOT_FOUND")
+                    {
+                        throw new Exception("No account found with this email address. Please check your email or sign up for a new account.");
+                    }
+                    
+                    // Check for other common Firebase errors
+                    switch (errorMessage)
+                    {
+                        case "INVALID_EMAIL":
+                            throw new Exception("The email address is invalid. Please check your email address.");
+                        case "MISSING_EMAIL":
+                            throw new Exception("Email address is required.");
+                        case "OPERATION_NOT_ALLOWED":
+                            throw new Exception("Password reset is not enabled for this project. Please contact support.");
+                        case "TOO_MANY_ATTEMPTS_TRY_LATER":
+                            throw new Exception("Too many attempts. Please try again later.");
+                        default:
+                            throw new Exception($"Failed to send password reset email: {GetUserFriendlyFirebaseError(errorMessage)}");
+                    }
+                }
+
+                // If we get here, the request was successful
+                Debug.WriteLine("=== Success ===");
+                Debug.WriteLine("Password reset email sent successfully");
+                Debug.WriteLine($"Response: {responseContent}");
+
+                // Verify the response contains the expected data
+                var responseObj = JObject.Parse(responseContent);
+                if (responseObj["email"] == null)
+                {
+                    Debug.WriteLine("Warning: Response does not contain email confirmation");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("=== Exception Details ===");
+                Debug.WriteLine($"Exception Message: {ex.Message}");
+                Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                Debug.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
                 throw;
             }
         }

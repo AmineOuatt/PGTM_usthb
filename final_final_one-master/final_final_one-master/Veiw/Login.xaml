@@ -105,6 +105,15 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+
+        <!-- نمط رابط Sign Up في رسالة الخطأ -->
+        <Style x:Key="errorSignUpLink" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#008080"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="TextDecorations" Value="Underline"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+        </Style>
     </Window.Resources>
 
 
@@ -229,6 +238,15 @@
                             Content="Sign In"
                             Style="{StaticResource mainbutton}"
                             Click="SignIn_L1_Click"/>
+
+                    <!-- Forgot Password Link -->
+                    <TextBlock x:Name="ForgotPasswordLink"
+                             Text="Forgot Password?"
+                             Foreground="#008080"
+                             Margin="0,10,0,0"
+                             HorizontalAlignment="Center"
+                             Cursor="Hand"
+                             MouseDown="ForgotPasswordLink_MouseDown"/>
                 </StackPanel>
             </Border>
         </Grid>
