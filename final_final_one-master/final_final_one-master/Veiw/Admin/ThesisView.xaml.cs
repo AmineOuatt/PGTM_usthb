@@ -414,7 +414,8 @@ namespace DataGridNamespace.Admin
                     (string.IsNullOrEmpty(currentSearchText) ||
                      (t.Titre != null && t.Titre.ToLower().Contains(currentSearchText)) ||
                      (t.Auteur != null && t.Auteur.ToLower().Contains(currentSearchText)) ||
-                     (t.MotsCles != null && t.MotsCles.ToLower().Contains(currentSearchText))) &&
+                     (t.MotsCles != null && t.MotsCles.ToLower().Contains(currentSearchText)) ||
+                     t.Id.ToString().Contains(currentSearchText)) &&
                     // Type filter
                     (currentTypeFilter == "All Types" || t.Type.ToString() == currentTypeFilter) &&
                     // Year filter
@@ -482,7 +483,8 @@ namespace DataGridNamespace.Admin
                     bool matchesSearch = string.IsNullOrEmpty(searchText) ||
                                         (thesis.Titre != null && thesis.Titre.ToLower().Contains(searchText)) ||
                                         (thesis.Auteur != null && thesis.Auteur.ToLower().Contains(searchText)) ||
-                                        (thesis.MotsCles != null && thesis.MotsCles.ToLower().Contains(searchText));
+                                        (thesis.MotsCles != null && thesis.MotsCles.ToLower().Contains(searchText)) ||
+                                        thesis.Id.ToString().Contains(searchText);
 
                     bool matchesType = typeFilter == "All Types" || thesis.Type.ToString() == typeFilter;
                     

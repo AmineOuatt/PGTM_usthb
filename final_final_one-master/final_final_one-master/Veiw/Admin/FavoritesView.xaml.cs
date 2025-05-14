@@ -344,7 +344,7 @@ namespace DataGridNamespace.Admin
         {
             try 
             {
-                // Check if any UI elements are null (could happen if called during initialization)
+                // Check for null UI elements
                 if (SearchTextBox == null || TypeFilterComboBox == null || FavoritesDataGrid == null)
                 {
                     Debug.WriteLine("ApplyFilters called before UI elements were initialized.");
@@ -354,10 +354,10 @@ namespace DataGridNamespace.Admin
                 // Store current filter values
                 currentSearchText = SearchTextBox.Text?.ToLower() ?? "";
                 
-                // Safely get ComboBox selection
-                if (TypeFilterComboBox.SelectedItem != null && TypeFilterComboBox.SelectedItem is ComboBoxItem selectedItem)
+                // Safely get Type filter
+                if (TypeFilterComboBox.SelectedItem != null && TypeFilterComboBox.SelectedItem is ComboBoxItem typeItem)
                 {
-                    currentTypeFilter = selectedItem.Content?.ToString() ?? "All Types";
+                    currentTypeFilter = typeItem.Content?.ToString() ?? "All Types";
                 }
 
                 if (allFavorites == null)
@@ -378,7 +378,8 @@ namespace DataGridNamespace.Admin
                     (string.IsNullOrEmpty(currentSearchText) ||
                         (f.These?.Titre != null && f.These.Titre.ToLower().Contains(currentSearchText)) ||
                         (f.These?.Auteur != null && f.These.Auteur.ToLower().Contains(currentSearchText)) ||
-                        (f.These?.MotsCles != null && f.These.MotsCles.ToLower().Contains(currentSearchText))) &&
+                        (f.These?.MotsCles != null && f.These.MotsCles.ToLower().Contains(currentSearchText)) ||
+                        (f.These != null && f.These.Id.ToString().Contains(currentSearchText))) &&
                     (currentTypeFilter == "All Types" ||
                         (f.These != null && f.These.Type.ToString() == currentTypeFilter))
                 ));
@@ -444,7 +445,8 @@ namespace DataGridNamespace.Admin
                     bool matchesSearch = string.IsNullOrEmpty(searchText) ||
                                         (favorite.These.Titre != null && favorite.These.Titre.ToLower().Contains(searchText)) ||
                                         (favorite.These.Auteur != null && favorite.These.Auteur.ToLower().Contains(searchText)) ||
-                                        (favorite.These.MotsCles != null && favorite.These.MotsCles.ToLower().Contains(searchText));
+                                        (favorite.These.MotsCles != null && favorite.These.MotsCles.ToLower().Contains(searchText)) ||
+                                        favorite.These.Id.ToString().Contains(searchText); // Add ID search
 
                     bool matchesType = typeFilter == "All Types" || favorite.These.Type.ToString() == typeFilter;
 

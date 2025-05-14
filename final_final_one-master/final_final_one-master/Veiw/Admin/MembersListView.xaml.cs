@@ -214,7 +214,8 @@ namespace DataGridNamespace.Admin
                     string searchText = SearchTextBox.Text.ToLower();
                     matchesSearch = (!string.IsNullOrEmpty(user.Nom) && user.Nom.ToLower().Contains(searchText)) ||
                                   (!string.IsNullOrEmpty(user.Email) && user.Email.ToLower().Contains(searchText)) ||
-                                  user.Role.ToString().ToLower().Contains(searchText);
+                                  user.Role.ToString().ToLower().Contains(searchText) ||
+                                  user.Id.ToString().Contains(searchText);
                 }
 
                 // Apply role filter

@@ -244,7 +244,8 @@ namespace DataGridNamespace
                 (string.IsNullOrEmpty(searchText) ||
                  t.Titre.ToLower().Contains(searchText) ||
                  t.Auteur.ToLower().Contains(searchText) ||
-                 t.Speciality.ToLower().Contains(searchText)) &&
+                 t.Speciality.ToLower().Contains(searchText) ||
+                 t.Id.ToString().Contains(searchText)) &&
                 (selectedType == "All Types" || t.Type.ToString() == selectedType)
             );
 

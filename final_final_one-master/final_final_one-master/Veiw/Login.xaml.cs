@@ -401,6 +401,9 @@ namespace MyProject
                     return;
                 }
 
+                // Store the role in lowercase to ensure consistency with how it's read from the database
+                string roleLowerCase = role.ToLower();
+
                 string insertQuery = @"
                     INSERT INTO users (nom, email, password, role, firebase_uid)
                     VALUES (@Username, @Email, 'FIREBASE_AUTH', @Role, @FirebaseUid)";
@@ -412,7 +415,7 @@ namespace MyProject
                     {
                         cmd.Parameters.AddWithValue("@Username", username);
                         cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Role", role);
+                        cmd.Parameters.AddWithValue("@Role", roleLowerCase);
                         cmd.Parameters.AddWithValue("@FirebaseUid", firebaseUid);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
@@ -429,11 +432,11 @@ namespace MyProject
 
                         // Convert the role string to RoleUtilisateur enum
                         RoleUtilisateur userRole = RoleUtilisateur.SimpleUser;
-                        if (string.Equals(role, "Etudiant", StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(roleLowerCase, "etudiant", StringComparison.OrdinalIgnoreCase))
                         {
                             userRole = RoleUtilisateur.Etudiant;
                         }
-                        else if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+                        else if (string.Equals(roleLowerCase, "admin", StringComparison.OrdinalIgnoreCase))
                         {
                             userRole = RoleUtilisateur.Admin;
                         }
@@ -813,7 +816,7 @@ namespace MyProject
     
         private static bool EmailIsValidForRole(string role, string email)
         {
-            if (!string.Equals(role?.Trim(), "Etudiant", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(role?.Trim(), "etudiant", StringComparison.OrdinalIgnoreCase))
                 return true;
 
             if (string.IsNullOrWhiteSpace(email))

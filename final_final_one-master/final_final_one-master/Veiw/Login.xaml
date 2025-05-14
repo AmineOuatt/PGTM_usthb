@@ -383,8 +383,8 @@
                               Margin="70,5"
                               HorizontalAlignment="Left"
                               Width="150">
-                        <ComboBoxItem Content="SimpleUser" IsSelected="True"/>
-                        <ComboBoxItem Content="Etudiant"/>
+                        <ComboBoxItem Content="simpleuser" IsSelected="True"/>
+                        <ComboBoxItem Content="etudiant"/>
                     </ComboBox>
 
                     <!-- زر Sign Up (ينفذ عملية Sign Up ثم يعود إلى Layout1) -->
