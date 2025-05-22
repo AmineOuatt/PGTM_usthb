@@ -75,120 +75,6 @@ namespace DataGridNamespace
             InitializeComponent();
             currentUserId = Session.CurrentUserId;
             LoadUserTheses();
-            SetupDataGridColumns();
-        }
-
-        private void SetupDataGridColumns()
-        {
-            ThesesDataGrid.Columns.Clear();
-            
-            // Add ID column
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "ID", Binding = new System.Windows.Data.Binding("Id"), Width = 60 });
-
-            // Add other columns
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Title", Binding = new System.Windows.Data.Binding("Titre"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Author", Binding = new System.Windows.Data.Binding("Auteur"), Width = 150 });
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Speciality", Binding = new System.Windows.Data.Binding("Speciality"), Width = 150 });
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Type", Binding = new System.Windows.Data.Binding("Type"), Width = 100 });
-            ThesesDataGrid.Columns.Add(new DataGridTextColumn { Header = "Year", Binding = new System.Windows.Data.Binding("Annee") { StringFormat = "yyyy" }, Width = 100 });
-
-            // Add Actions column with buttons
-            var actionsColumn = new DataGridTemplateColumn
-            {
-                Header = "Actions",
-                Width = 200
-            };
-
-            var cellTemplate = new DataTemplate();
-            var stackPanel = new FrameworkElementFactory(typeof(StackPanel));
-            stackPanel.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
-            stackPanel.SetValue(StackPanel.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-
-            // View Details Button
-            var viewDetailsButton = new FrameworkElementFactory(typeof(Button));
-            viewDetailsButton.SetValue(Button.StyleProperty, FindResource("ActionButtonStyle"));
-            viewDetailsButton.SetValue(Button.WidthProperty, 35.0);
-            viewDetailsButton.SetValue(Button.HeightProperty, 35.0);
-            viewDetailsButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            viewDetailsButton.SetValue(Button.ToolTipProperty, "View Details");
-            viewDetailsButton.SetValue(Button.TagProperty, new Binding());
-            viewDetailsButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(ViewDetailsButton_Click));
-
-            var viewDetailsIcon = new FrameworkElementFactory(typeof(TextBlock));
-            viewDetailsIcon.SetValue(TextBlock.TextProperty, "ℹ️");
-            viewDetailsIcon.SetValue(TextBlock.FontSizeProperty, 18.0);
-            viewDetailsButton.AppendChild(viewDetailsIcon);
-
-            // View PDF Button
-            var viewPdfButton = new FrameworkElementFactory(typeof(Button));
-            viewPdfButton.SetValue(Button.StyleProperty, FindResource("ActionButtonStyle"));
-            viewPdfButton.SetValue(Button.WidthProperty, 35.0);
-            viewPdfButton.SetValue(Button.HeightProperty, 35.0);
-            viewPdfButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            viewPdfButton.SetValue(Button.ToolTipProperty, "View PDF");
-            viewPdfButton.SetValue(Button.TagProperty, new Binding());
-            viewPdfButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(ViewPdfButton_Click));
-
-            var viewPdfIcon = new FrameworkElementFactory(typeof(TextBlock));
-            viewPdfIcon.SetValue(TextBlock.TextProperty, "📄");
-            viewPdfIcon.SetValue(TextBlock.FontSizeProperty, 18.0);
-            viewPdfButton.AppendChild(viewPdfIcon);
-
-            // Favorite Button
-            var favoriteButton = new FrameworkElementFactory(typeof(Button));
-            favoriteButton.SetValue(Button.StyleProperty, FindResource("ActionButtonStyle"));
-            favoriteButton.SetValue(Button.WidthProperty, 35.0);
-            favoriteButton.SetValue(Button.HeightProperty, 35.0);
-            favoriteButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            favoriteButton.SetValue(Button.ToolTipProperty, "Add to Favorites");
-            favoriteButton.SetValue(Button.TagProperty, new Binding());
-            favoriteButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(FavoriteButton_Click));
-
-            var favoriteIcon = new FrameworkElementFactory(typeof(TextBlock));
-            favoriteIcon.SetValue(TextBlock.TextProperty, "⭐");
-            favoriteIcon.SetValue(TextBlock.FontSizeProperty, 18.0);
-            favoriteButton.AppendChild(favoriteIcon);
-
-            // Edit Button
-            var editButton = new FrameworkElementFactory(typeof(Button));
-            editButton.SetValue(Button.StyleProperty, FindResource("EditButtonStyle"));
-            editButton.SetValue(Button.WidthProperty, 35.0);
-            editButton.SetValue(Button.HeightProperty, 35.0);
-            editButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            editButton.SetValue(Button.ToolTipProperty, "Edit Thesis");
-            editButton.SetValue(Button.TagProperty, new Binding());
-            editButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(EditButton_Click));
-
-            var editIcon = new FrameworkElementFactory(typeof(TextBlock));
-            editIcon.SetValue(TextBlock.TextProperty, "✏️");
-            editIcon.SetValue(TextBlock.FontSizeProperty, 18.0);
-            editButton.AppendChild(editIcon);
-
-            // Delete Button
-            var deleteButton = new FrameworkElementFactory(typeof(Button));
-            deleteButton.SetValue(Button.StyleProperty, FindResource("DeleteButtonStyle"));
-            deleteButton.SetValue(Button.WidthProperty, 35.0);
-            deleteButton.SetValue(Button.HeightProperty, 35.0);
-            deleteButton.SetValue(Button.MarginProperty, new Thickness(2, 0, 2, 0));
-            deleteButton.SetValue(Button.ToolTipProperty, "Delete Thesis");
-            deleteButton.SetValue(Button.TagProperty, new Binding());
-            deleteButton.AddHandler(Button.ClickEvent, new RoutedEventHandler(DeleteButton_Click));
-
-            var deleteIcon = new FrameworkElementFactory(typeof(TextBlock));
-            deleteIcon.SetValue(TextBlock.TextProperty, "🗑️");
-            deleteIcon.SetValue(TextBlock.FontSizeProperty, 18.0);
-            deleteButton.AppendChild(deleteIcon);
-
-            stackPanel.AppendChild(viewDetailsButton);
-            stackPanel.AppendChild(viewPdfButton);
-            stackPanel.AppendChild(favoriteButton);
-            stackPanel.AppendChild(editButton);
-            stackPanel.AppendChild(deleteButton);
-
-            cellTemplate.VisualTree = stackPanel;
-            actionsColumn.CellTemplate = cellTemplate;
-
-            ThesesDataGrid.Columns.Add(actionsColumn);
         }
 
         private void LoadUserTheses()
@@ -198,7 +84,9 @@ namespace DataGridNamespace
                 Debug.WriteLine("Starting LoadUserTheses...");
                 string connectionString = AppConfig.CloudSqlConnectionString;
                 Debug.WriteLine($"Connection string: {connectionString}");
-                string query = "SELECT * FROM theses WHERE user_id = @userId";
+                string query = @"SELECT id, titre, auteur, speciality, Type, mots_cles, annee, Resume, fichier, user_id, status 
+                                   FROM theses 
+                                   WHERE user_id = @userId";
                 Debug.WriteLine($"Query: {query}");
                 Debug.WriteLine($"Current User ID: {currentUserId}");
 
@@ -215,12 +103,12 @@ namespace DataGridNamespace
                             cmd.Parameters.AddWithValue("@userId", currentUserId);
                             Debug.WriteLine("Command parameters set");
                             
-                            using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                            using (MySqlDataReader reader = cmd.ExecuteReader())
                             {
                                 Debug.WriteLine("Creating DataTable...");
                                 DataTable dt = new DataTable();
                                 Debug.WriteLine("Filling DataTable...");
-                                adapter.Fill(dt);
+                                dt.Load(reader);
                                 Debug.WriteLine($"DataTable filled with {dt.Rows.Count} rows");
 
                                 allTheses = new ObservableCollection<Theses>();
@@ -235,8 +123,8 @@ namespace DataGridNamespace
                                             Titre = row["titre"].ToString(),
                                             Auteur = row["auteur"].ToString(),
                                             Speciality = row["speciality"].ToString(),
-                                            Type = (TypeThese)Enum.Parse(typeof(TypeThese), row["type"].ToString()),
-                                            Annee = Convert.ToDateTime(row["annee"]),
+                                            Type = Enum.TryParse<TypeThese>(row["type"].ToString(), out var typeEnum) ? typeEnum : default(TypeThese),
+                                            Annee = (row["annee"] != DBNull.Value) ? Convert.ToDateTime(row["annee"]) : DateTime.MinValue,
                                             MotsCles = row["mots_cles"].ToString(),
                                             Resume = row["resume"].ToString(),
                                             Fichier = row["fichier"].ToString(),
