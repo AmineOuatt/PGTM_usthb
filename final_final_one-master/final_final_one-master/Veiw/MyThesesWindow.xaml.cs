@@ -41,6 +41,29 @@ namespace DataGridNamespace
         }
     }
 
+    public class StatusToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is string status)
+            {
+                return status.ToLower() switch
+                {
+                    "pending" => Color.FromRgb(255, 165, 0),  // Orange
+                    "accepted" => Color.FromRgb(76, 175, 80),  // Green
+                    "declined" => Color.FromRgb(244, 67, 54),  // Red
+                    _ => Colors.Gray
+                };
+            }
+            return Colors.Gray;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class MyThesesWindow : Page
     {
         private ObservableCollection<Theses> allTheses;
@@ -172,48 +195,92 @@ namespace DataGridNamespace
         {
             try
             {
+                Debug.WriteLine("Starting LoadUserTheses...");
                 string connectionString = AppConfig.CloudSqlConnectionString;
+                Debug.WriteLine($"Connection string: {connectionString}");
                 string query = "SELECT * FROM theses WHERE user_id = @userId";
+                Debug.WriteLine($"Query: {query}");
+                Debug.WriteLine($"Current User ID: {currentUserId}");
 
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
-                    conn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    try
                     {
-                        cmd.Parameters.AddWithValue("@userId", currentUserId);
-                        
-                        using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
-                        {
-                            DataTable dt = new DataTable();
-                            adapter.Fill(dt);
+                        Debug.WriteLine("Attempting to open database connection...");
+                        conn.Open();
+                        Debug.WriteLine("Database connection opened successfully");
 
-                            allTheses = new ObservableCollection<Theses>();
-                            foreach (DataRow row in dt.Rows)
+                        using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@userId", currentUserId);
+                            Debug.WriteLine("Command parameters set");
+                            
+                            using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
                             {
-                                allTheses.Add(new Theses
+                                Debug.WriteLine("Creating DataTable...");
+                                DataTable dt = new DataTable();
+                                Debug.WriteLine("Filling DataTable...");
+                                adapter.Fill(dt);
+                                Debug.WriteLine($"DataTable filled with {dt.Rows.Count} rows");
+
+                                allTheses = new ObservableCollection<Theses>();
+                                foreach (DataRow row in dt.Rows)
                                 {
-                                    Id = Convert.ToInt32(row["id"]),
-                                    Titre = row["titre"].ToString(),
-                                    Auteur = row["auteur"].ToString(),
-                                    Speciality = row["speciality"].ToString(),
-                                    Type = (TypeThese)Enum.Parse(typeof(TypeThese), row["type"].ToString()),
-                                    Annee = Convert.ToDateTime(row["annee"]),
-                                    MotsCles = row["mots_cles"].ToString(),
-                                    Resume = row["resume"].ToString(),
-                                    Fichier = row["fichier"].ToString(),
-                                    UserId = Convert.ToInt32(row["user_id"])
-                                });
+                                    try
+                                    {
+                                        Debug.WriteLine($"Processing row ID: {row["id"]}");
+                                        var thesis = new Theses
+                                        {
+                                            Id = Convert.ToInt32(row["id"]),
+                                            Titre = row["titre"].ToString(),
+                                            Auteur = row["auteur"].ToString(),
+                                            Speciality = row["speciality"].ToString(),
+                                            Type = (TypeThese)Enum.Parse(typeof(TypeThese), row["type"].ToString()),
+                                            Annee = Convert.ToDateTime(row["annee"]),
+                                            MotsCles = row["mots_cles"].ToString(),
+                                            Resume = row["resume"].ToString(),
+                                            Fichier = row["fichier"].ToString(),
+                                            UserId = Convert.ToInt32(row["user_id"]),
+                                            Status = row["status"].ToString()
+                                        };
+                                        Debug.WriteLine($"Thesis created with Status: {thesis.Status}");
+                                        allTheses.Add(thesis);
+                                    }
+                                    catch (Exception rowEx)
+                                    {
+                                        Debug.WriteLine($"Error processing row: {rowEx.Message}");
+                                        Debug.WriteLine($"Row data: {string.Join(", ", row.ItemArray.Select(x => x?.ToString() ?? "null"))}");
+                                        // Continue processing other rows
+                                    }
+                                }
                             }
                         }
                     }
+                    catch (MySqlException sqlEx)
+                    {
+                        Debug.WriteLine($"SQL Error: {sqlEx.Message}");
+                        Debug.WriteLine($"Error Code: {sqlEx.Number}");
+                        Debug.WriteLine($"SQL State: {sqlEx.SqlState}");
+                        throw;
+                    }
                 }
 
+                Debug.WriteLine($"Setting ItemsSource with {allTheses.Count} theses");
                 ThesesDataGrid.ItemsSource = allTheses;
                 UpdateThesisCounter();
+                Debug.WriteLine("LoadUserTheses completed successfully");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading theses: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Debug.WriteLine($"Critical error in LoadUserTheses: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    Debug.WriteLine($"Inner exception stack trace: {ex.InnerException.StackTrace}");
+                }
+                MessageBox.Show($"Error loading theses: {ex.Message}\n\nPlease check the debug output for more details.", 
+                              "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

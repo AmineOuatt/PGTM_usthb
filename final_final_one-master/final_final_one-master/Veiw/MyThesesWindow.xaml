@@ -8,6 +8,9 @@
       d:DesignHeight="600" d:DesignWidth="800">
 
     <Page.Resources>
+        <!-- Status to Color Converter -->
+        <local:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        
         <!-- Search TextBox Style -->
         <Style x:Key="SearchBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
@@ -252,6 +255,22 @@
                     <DataGridTextColumn Header="Year" 
                                       Binding="{Binding Annee, StringFormat=yyyy}" 
                                       Width="100"/>
+                    <DataGridTemplateColumn Header="Status" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Ellipse Width="12" Height="12" Margin="0,0,8,0">
+                                        <Ellipse.Fill>
+                                            <MultiBinding Converter="{StaticResource StatusToColorConverter}">
+                                                <Binding Path="Status"/>
+                                            </MultiBinding>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Actions" Width="200">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

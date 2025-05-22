@@ -226,6 +226,14 @@
                 </StackPanel>
               </Button>
 
+              <!-- Demands -->
+              <Button x:Name="DemandsButton" Style="{StaticResource menuButton}" Click="DemandsButton_Click">
+                <StackPanel Orientation="Horizontal">
+                  <Icon:PackIconMaterial Kind="ClipboardListOutline" Style="{StaticResource menuButtonIcon}"/>
+                  <TextBlock Text="Demands"/>
+                </StackPanel>
+              </Button>
+
               <!-- News -->
               <Button x:Name="NewsButton" Style="{StaticResource menuButton}" Click="NewsButton_Click">
                 <StackPanel Orientation="Horizontal">

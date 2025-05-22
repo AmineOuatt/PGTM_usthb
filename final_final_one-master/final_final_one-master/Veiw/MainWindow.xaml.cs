@@ -295,6 +295,7 @@ namespace DataGridNamespace
             FavoritesButton.Background = Brushes.Transparent;
             MyThesesButton.Background = Brushes.Transparent;
             NewsButton.Background = Brushes.Transparent;
+            DemandsButton.Background = Brushes.Transparent;
         }
 
         private void DashboardButton_Click(object sender, RoutedEventArgs e)
@@ -351,6 +352,25 @@ namespace DataGridNamespace
             NewsButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
             var newsView = new Veiw.NewsView();
             MainFrame.Navigate(newsView);
+        }
+
+        private void DemandsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetAllButtonBackgrounds();
+            DemandsButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            try
+            {
+                Debug.WriteLine("Attempting to create and navigate to DemandsView...");
+                var demandsView = new Admin.DemandsView();
+                MainFrame.Navigate(demandsView);
+                Debug.WriteLine("Navigation to DemandsView successful.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error during DemandsView creation or navigation: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                MessageBox.Show($"Error loading Demands view: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void LogoutButton_Click(object sender, RoutedEventArgs e)

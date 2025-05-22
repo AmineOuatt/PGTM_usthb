@@ -37,6 +37,10 @@ namespace ThesesModels
         [Required]
         public string Fichier { get; set; }
 
+        [Required]
+        [MaxLength(50)]
+        public string Status { get; set; }
+
         // 🔹 Clé étrangère pour l'utilisateur
         [Required]
         public int UserId { get; set; }

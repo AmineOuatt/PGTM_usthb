@@ -249,6 +249,9 @@
 
         <!-- Role to Visibility Converter -->
         <local:RoleToVisibilityConverter x:Key="RoleToVisibilityConverter"/>
+
+        <!-- Status to Color Converter -->
+        <local:StatusToColorConverter x:Key="StatusToColorConverter"/>
     </UserControl.Resources>
 
     <Grid>
@@ -271,8 +274,8 @@
                     
                     <!-- Title -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Thesis Management" FontSize="20" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock x:Name="ThesisCounterText" Text="(0 theses)" FontSize="12" Foreground="White" VerticalAlignment="Center" Margin="6,3,0,0"/>
+                        <TextBlock Text="Accepted Theses" FontSize="20" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Name="ThesisCounterText" Text="(0 accepted theses)" FontSize="12" Foreground="White" VerticalAlignment="Center" Margin="6,3,0,0"/>
                     </StackPanel>
                     
                     <!-- Refresh Button -->
@@ -366,6 +369,28 @@
                     <DataGridTextColumn Header="Year" 
                                         Binding="{Binding Annee, StringFormat=yyyy}" 
                                         Width="100"/>
+
+                    <!-- Status Column -->
+                    <DataGridTemplateColumn Header="Status" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Ellipse Width="12" Height="12" Margin="0,0,6,0">
+                                        <Ellipse.Fill>
+                                            <SolidColorBrush>
+                                                <SolidColorBrush.Color>
+                                                    <MultiBinding Converter="{StaticResource StatusToColorConverter}">
+                                                        <Binding Path="Status"/>
+                                                    </MultiBinding>
+                                                </SolidColorBrush.Color>
+                                            </SolidColorBrush>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
                     <!-- Actions Column -->
                     <DataGridTemplateColumn Header="Actions" Width="120">

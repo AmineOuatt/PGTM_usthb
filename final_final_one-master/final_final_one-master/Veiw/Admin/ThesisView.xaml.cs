@@ -18,6 +18,29 @@ using System.Globalization;
 
 namespace DataGridNamespace.Admin
 {
+    public class StatusToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is string status)
+            {
+                return status.ToLower() switch
+                {
+                    "pending" => Color.FromRgb(255, 165, 0),  // Orange
+                    "accepted" => Color.FromRgb(76, 175, 80),  // Green
+                    "declined" => Color.FromRgb(244, 67, 54),  // Red
+                    _ => Colors.Gray
+                };
+            }
+            return Colors.Gray;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class RoleToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -87,10 +110,11 @@ namespace DataGridNamespace.Admin
                 
                 try
                 {
-                    // Fixed SQL query with correct column names and ascending order
+                    // Modified SQL query to only load accepted theses
                     string query = @"SELECT t.id, t.titre, t.auteur, t.speciality, t.Type, 
                                    t.mots_cles as MotsCles, t.annee, t.Resume, t.fichier, t.user_id as UserId 
                                    FROM theses t
+                                   WHERE t.status = 'accepted'
                                    ORDER BY t.id ASC";
 
                     using (MySqlConnection conn = new MySqlConnection(connectionString))
@@ -169,7 +193,7 @@ namespace DataGridNamespace.Admin
                 UpdateDeleteButtonVisibility();
 
                 // Update the UI with loaded data count
-                Debug.WriteLine($"Loaded {allTheses.Count} theses successfully");
+                Debug.WriteLine($"Loaded {allTheses.Count} accepted theses successfully");
                 UpdateThesisCounter();
             }
             catch (Exception ex)
