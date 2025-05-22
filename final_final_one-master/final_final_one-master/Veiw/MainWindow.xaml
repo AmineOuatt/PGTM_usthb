@@ -226,6 +226,14 @@
                 </StackPanel>
               </Button>
 
+              <!-- News -->
+              <Button x:Name="NewsButton" Style="{StaticResource menuButton}" Click="NewsButton_Click">
+                <StackPanel Orientation="Horizontal">
+                  <Icon:PackIconMaterial Kind="NewspaperVariantOutline" Style="{StaticResource menuButtonIcon}"/>
+                  <TextBlock Text="News"/>
+                </StackPanel>
+              </Button>
+
               <!-- Profile -->
               <Button x:Name="ProfileButton" Style="{StaticResource menuButton}" Click="ProfileButton_Click">
                 <StackPanel Orientation="Horizontal">

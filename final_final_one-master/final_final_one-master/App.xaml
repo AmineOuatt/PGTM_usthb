@@ -9,6 +9,7 @@
 		<!-- Core Styles for Login.xaml -->
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <converters:BoolToFavoriteTextConverter x:Key="BoolToFavoriteTextConverter"/>
+        <converters:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVisibilityConverter"/>
 
         <Style x:Key="imgClose" TargetType="Image">
 			<Setter Property="Width" Value="20" />

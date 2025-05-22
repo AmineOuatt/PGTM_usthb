@@ -187,6 +187,7 @@ namespace DataGridNamespace
                 ProfileButton.Visibility = Visibility.Visible;
                 FavoritesButton.Visibility = Visibility.Visible;
                 MyThesesButton.Visibility = Visibility.Visible;
+                NewsButton.Visibility = Visibility.Visible;
 
                 // Set initial view to dashboard
                 DashboardButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
@@ -195,6 +196,7 @@ namespace DataGridNamespace
                 ProfileButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
                 MyThesesButton.Background = Brushes.Transparent;
+                NewsButton.Background = Brushes.Transparent;
                 
                 // Load dashboard view by default
                 var dashboardView = new Admin.DashboardView();
@@ -207,6 +209,7 @@ namespace DataGridNamespace
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
                 MyThesesButton.Click += MyThesesButton_Click;
+                NewsButton.Click += NewsButton_Click;
             }
             catch (Exception ex)
             {
@@ -225,6 +228,7 @@ namespace DataGridNamespace
                 FavoritesButton.Visibility = Visibility.Visible;
                 MyThesesButton.Visibility = Visibility.Collapsed;
                 MembersButton.Visibility = Visibility.Collapsed;
+                NewsButton.Visibility = Visibility.Visible;
 
                 // Set initial view to profile
                 ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
@@ -233,7 +237,7 @@ namespace DataGridNamespace
                 ThesisButton.Click += ThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
-                MyThesesButton.Click += MyThesesButton_Click;
+                NewsButton.Click += NewsButton_Click;
 
                 // Load profile view by default
                 var profileView = new ProfileView();
@@ -256,18 +260,21 @@ namespace DataGridNamespace
                 FavoritesButton.Visibility = Visibility.Visible;
                 MyThesesButton.Visibility = Visibility.Visible;
                 MembersButton.Visibility = Visibility.Collapsed;
+                NewsButton.Visibility = Visibility.Visible;
 
                 // Set initial view to profile
                 ProfileButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
                 ThesisButton.Background = Brushes.Transparent;
                 FavoritesButton.Background = Brushes.Transparent;
                 MyThesesButton.Background = Brushes.Transparent;
+                NewsButton.Background = Brushes.Transparent;
                 
                 // Set up etudiant-specific event handlers
                 ThesisButton.Click += ThesisButton_Click;
                 ProfileButton.Click += ProfileButton_Click;
                 FavoritesButton.Click += FavoritesButton_Click;
                 MyThesesButton.Click += MyThesesButton_Click;
+                NewsButton.Click += NewsButton_Click;
 
                 // Load profile view by default
                 var profileView = new ProfileView();
@@ -287,6 +294,7 @@ namespace DataGridNamespace
             ProfileButton.Background = Brushes.Transparent;
             FavoritesButton.Background = Brushes.Transparent;
             MyThesesButton.Background = Brushes.Transparent;
+            NewsButton.Background = Brushes.Transparent;
         }
 
         private void DashboardButton_Click(object sender, RoutedEventArgs e)
@@ -335,6 +343,14 @@ namespace DataGridNamespace
             MyThesesButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
             var myThesesView = new MyThesesWindow();
             MainFrame.Navigate(myThesesView);
+        }
+
+        private void NewsButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetAllButtonBackgrounds();
+            NewsButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#7B5CD6"));
+            var newsView = new Veiw.NewsView();
+            MainFrame.Navigate(newsView);
         }
 
         public void LogoutButton_Click(object sender, RoutedEventArgs e)
