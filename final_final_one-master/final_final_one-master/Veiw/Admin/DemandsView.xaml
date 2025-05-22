@@ -101,12 +101,89 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="SearchBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="25,4,8,4"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#008080"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#005555"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#005555"/>
+                    <Setter Property="Background" Value="#F8FFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FilterComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#008080"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#005555"/>
+                </Trigger>
+                <Trigger Property="IsDropDownOpen" Value="True">
+                    <Setter Property="BorderBrush" Value="#005555"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PaginationButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#008080"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#008080"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E6F3F3"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#008080"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActivePageButtonStyle" TargetType="Button" BasedOn="{StaticResource PaginationButtonStyle}">
+            <Setter Property="Background" Value="#008080"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
@@ -134,9 +211,47 @@
             </Grid>
         </Border>
 
+        <!-- Search and Filter Section -->
+        <Border Grid.Row="1" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,6" CornerRadius="4">
+            <Grid Margin="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Search Box -->
+                <TextBox x:Name="SearchTextBox" 
+                         Grid.Column="0"
+                         Style="{StaticResource SearchBoxStyle}"
+                         TextChanged="SearchTextBox_TextChanged"
+                         Margin="0,0,8,0"/>
+
+                <!-- Type Filter -->
+                <ComboBox x:Name="TypeFilterComboBox" 
+                          Grid.Column="1"
+                          Style="{StaticResource FilterComboBoxStyle}"
+                          SelectionChanged="TypeFilterComboBox_SelectionChanged"
+                          Margin="8,0,8,0">
+                    <ComboBoxItem Content="All Types" IsSelected="True"/>
+                    <ComboBoxItem Content="Doctorat"/>
+                    <ComboBoxItem Content="Master"/>
+                </ComboBox>
+
+                <!-- Year Filter -->
+                <ComboBox x:Name="YearFilterComboBox" 
+                          Grid.Column="2"
+                          Style="{StaticResource FilterComboBoxStyle}"
+                          SelectionChanged="YearFilterComboBox_SelectionChanged"
+                          Margin="8,0,0,0">
+                    <ComboBoxItem Content="All Years" IsSelected="True"/>
+                </ComboBox>
+            </Grid>
+        </Border>
+
         <!-- DataGrid -->
         <DataGrid x:Name="PendingThesesGrid" 
-                  Grid.Row="1"
+                  Grid.Row="2"
                   Style="{StaticResource ThesisDataGridStyle}"
                   RowStyle="{StaticResource ThesisRowStyle}"
                   CellStyle="{StaticResource CellStyle}"
@@ -204,5 +319,56 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+        <!-- Pagination -->
+        <Border Grid.Row="3" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,6,12,12" CornerRadius="4">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="12">
+                <Button x:Name="FirstPageButton" 
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="FirstPageButton_Click"
+                        ToolTip="First Page">
+                    <TextBlock Text="«" 
+                               FontSize="16" 
+                               VerticalAlignment="Center"/>
+                </Button>
+                
+                <Button x:Name="PreviousPageButton" 
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="PreviousPageButton_Click"
+                        ToolTip="Previous Page">
+                    <TextBlock Text="‹" 
+                               FontSize="16" 
+                               VerticalAlignment="Center"/>
+                </Button>
+                
+                <!-- Page Number Buttons -->
+                <ItemsControl x:Name="PaginationItemsControl" 
+                              VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                
+                <Button x:Name="NextPageButton" 
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="NextPageButton_Click"
+                        ToolTip="Next Page">
+                    <TextBlock Text="›" 
+                               FontSize="16" 
+                               VerticalAlignment="Center"/>
+                </Button>
+                
+                <Button x:Name="LastPageButton" 
+                        Style="{StaticResource PaginationButtonStyle}"
+                        Click="LastPageButton_Click"
+                        ToolTip="Last Page">
+                    <TextBlock Text="»" 
+                               FontSize="16" 
+                               VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl> 
