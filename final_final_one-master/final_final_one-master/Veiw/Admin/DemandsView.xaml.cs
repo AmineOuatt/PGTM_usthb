@@ -113,7 +113,6 @@ namespace DataGridNamespace.Admin
             try
             {
                 var years = pendingTheses
-                    .Where(t => t.Annee != null)
                     .Select(t => t.Annee.Year)
                     .Distinct()
                     .OrderByDescending(y => y)
