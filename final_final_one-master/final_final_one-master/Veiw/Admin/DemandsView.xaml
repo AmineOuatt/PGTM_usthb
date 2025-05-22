@@ -6,6 +6,103 @@
              xmlns:local="clr-namespace:DataGridNamespace.Admin"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <Style x:Key="CircularActionButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="35"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="17.5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.6"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ThesisDataGridStyle" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9FAFB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="RowHeight" Value="40"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <Style x:Key="ThesisRowStyle" TargetType="DataGridRow">
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F9F9"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E6F3F3"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#008080"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,0"/>
+            <Setter Property="BorderBrush" Value="#006666"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#006666"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CellStyle" TargetType="DataGridCell">
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E6F3F3"/>
+                    <Setter Property="Foreground" Value="#008080"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F1F9F9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -14,27 +111,97 @@
 
         <!-- Header -->
         <Border Background="#008080" Padding="12,10" CornerRadius="8,8,0,0">
-            <TextBlock Text="Pending Theses" 
-                       FontSize="20" 
-                       FontWeight="Bold" 
-                       Foreground="White"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="Pending Theses" 
+                           FontSize="20" 
+                           FontWeight="Bold" 
+                           Foreground="White"/>
+                
+                <Button x:Name="RefreshButton" 
+                        Grid.Column="1"
+                        Content="Refresh" 
+                        Click="RefreshButton_Click"
+                        Background="White"
+                        Foreground="#008080"
+                        BorderThickness="0"
+                        Padding="15,5"
+                        Margin="0,0,6,0"/>
+            </Grid>
         </Border>
 
         <!-- DataGrid -->
         <DataGrid x:Name="PendingThesesGrid" 
                   Grid.Row="1"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  Margin="12"
-                  BorderThickness="1"
-                  BorderBrush="#E5E7EB">
+                  Style="{StaticResource ThesisDataGridStyle}"
+                  RowStyle="{StaticResource ThesisRowStyle}"
+                  CellStyle="{StaticResource CellStyle}"
+                  Margin="12">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
-                <DataGridTextColumn Header="Title" Binding="{Binding Titre}" Width="*"/>
-                <DataGridTextColumn Header="Author" Binding="{Binding Auteur}" Width="150"/>
-                <DataGridTextColumn Header="Specialty" Binding="{Binding Speciality}" Width="100"/>
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
-                <DataGridTextColumn Header="Year" Binding="{Binding Annee, StringFormat=yyyy}" Width="100"/>
+                <DataGridTextColumn Header="ID" 
+                                    Binding="{Binding Id}" 
+                                    Width="60" 
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                <DataGridTextColumn Header="Title" 
+                                    Binding="{Binding Titre}" 
+                                    Width="*"
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                <DataGridTextColumn Header="Author" 
+                                    Binding="{Binding Auteur}" 
+                                    Width="150"
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                <DataGridTextColumn Header="Specialty" 
+                                    Binding="{Binding Speciality}" 
+                                    Width="100"
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                <DataGridTextColumn Header="Type" 
+                                    Binding="{Binding Type}" 
+                                    Width="100"
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                <DataGridTextColumn Header="Year" 
+                                    Binding="{Binding Annee, StringFormat=yyyy}" 
+                                    Width="100"
+                                    HeaderStyle="{StaticResource ColumnHeaderStyle}"/>
+                
+                <!-- Actions Column -->
+                <DataGridTemplateColumn Header="Actions" 
+                                        Width="120"
+                                        HeaderStyle="{StaticResource ColumnHeaderStyle}">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <!-- Accept Button -->
+                                <Button Style="{StaticResource CircularActionButtonStyle}"
+                                        Tag="{Binding}"
+                                        Click="AcceptButton_Click"
+                                        ToolTip="Accept Thesis"
+                                        Background="#4CAF50"
+                                        Margin="0,0,5,0">
+                                    <TextBlock Text="✓" 
+                                              FontSize="16"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </Button>
+
+                                <!-- Decline Button -->
+                                <Button Style="{StaticResource CircularActionButtonStyle}"
+                                        Tag="{Binding}"
+                                        Click="DeclineButton_Click"
+                                        ToolTip="Decline Thesis"
+                                        Background="#E74C3C">
+                                    <TextBlock Text="✕" 
+                                              FontSize="16"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
