@@ -138,8 +138,12 @@ namespace DataGridNamespace.Admin
                     return;
                 }
 
-                // Get current user ID from session
+                // Get current user ID and role from session
                 int currentUserId = DataGridNamespace.Session.CurrentUserId;
+                UserModels.RoleUtilisateur currentUserRole = DataGridNamespace.Session.CurrentUserRole;
+
+                // Determine the status based on user role
+                string thesisStatus = (currentUserRole == UserModels.RoleUtilisateur.Admin) ? "accepted" : "pending";
 
                 // Show "Please wait" message
                 SaveButton.IsEnabled = false;
@@ -200,8 +204,9 @@ namespace DataGridNamespace.Admin
                 }
                 else
                 {
-                    query = @"INSERT INTO theses (titre, auteur, speciality, Type, mots_cles, annee, Resume, fichier, user_id) 
-                            VALUES (@titre, @auteur, @speciality, @type, @motsCles, @annee, @resume, @fichier, @userId)";
+                    // Include status column in the INSERT query
+                    query = @"INSERT INTO theses (titre, auteur, speciality, Type, mots_cles, annee, Resume, fichier, user_id, status) 
+                            VALUES (@titre, @auteur, @speciality, @type, @motsCles, @annee, @resume, @fichier, @userId, @status)";
                 }
 
                 using (MySqlConnection conn = new MySqlConnection(AppConfig.CloudSqlConnectionString))
@@ -222,6 +227,11 @@ namespace DataGridNamespace.Admin
                         if (isEditMode)
                         {
                             cmd.Parameters.AddWithValue("@id", existingThesis.Id);
+                        }
+                        else
+                        {
+                            // Add status parameter for new theses
+                            cmd.Parameters.AddWithValue("@status", thesisStatus);
                         }
 
                         int rowsAffected = cmd.ExecuteNonQuery();
