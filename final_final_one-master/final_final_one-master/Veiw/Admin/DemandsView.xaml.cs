@@ -112,7 +112,13 @@ namespace DataGridNamespace.Admin
         {
             try
             {
-                var years = pendingTheses.Select(t => t.Annee.Year).Distinct().OrderByDescending(y => y).ToList();
+                var years = pendingTheses
+                    .Where(t => t.Annee != null)
+                    .Select(t => t.Annee.Year)
+                    .Distinct()
+                    .OrderByDescending(y => y)
+                    .ToList();
+
                 YearFilterComboBox.Items.Clear();
                 YearFilterComboBox.Items.Add(new ComboBoxItem { Content = "All Years", IsSelected = true });
                 foreach (var year in years)
@@ -131,42 +137,74 @@ namespace DataGridNamespace.Admin
         {
             try
             {
-                var filtered = pendingTheses.AsEnumerable();
+                // Ensure pendingTheses is not null before proceeding
+                if (pendingTheses == null)
+                {
+                    Debug.WriteLine("pendingTheses collection is null in ApplyFilters.");
+                    return;
+                }
+
+                var filtered = pendingTheses.AsEnumerable()
+                    // Add a safety check for null thesis objects in the collection
+                    .Where(t => t != null);
 
                 // Apply search filter
                 if (!string.IsNullOrWhiteSpace(SearchTextBox.Text))
                 {
                     string searchText = SearchTextBox.Text.ToLower();
                     filtered = filtered.Where(t =>
+                        // Explicit null checks for properties before accessing them
                         (t.Titre != null && t.Titre.ToLower().Contains(searchText)) ||
                         (t.Auteur != null && t.Auteur.ToLower().Contains(searchText)) ||
                         (t.Speciality != null && t.Speciality.ToLower().Contains(searchText)));
                 }
 
                 // Apply type filter
-                if (TypeFilterComboBox.SelectedItem is ComboBoxItem selectedType &&
+                // Explicitly check if TypeFilterComboBox is not null
+                if (TypeFilterComboBox != null && TypeFilterComboBox.SelectedItem is ComboBoxItem selectedType &&
                     selectedType.Content.ToString() != "All Types")
                 {
+                    // Ensure the string can be parsed to TypeThese and the thesis Type is not null (though TypeThese is a value type, safer check)
                     if (Enum.TryParse(selectedType.Content.ToString(), out TypeThese selectedTypeThese))
                     {
                         filtered = filtered.Where(t => t.Type == selectedTypeThese);
                     }
+                    // If parsing fails, the filter won't be applied for this selection, which is safer.
                 }
 
                 // Apply year filter
-                if (YearFilterComboBox.SelectedItem is ComboBoxItem selectedYear &&
+                // Explicitly check if YearFilterComboBox is not null
+                if (YearFilterComboBox != null && YearFilterComboBox.SelectedItem is ComboBoxItem selectedYear &&
                     selectedYear.Content.ToString() != "All Years")
                 {
+                    // Ensure the string can be parsed to an integer year
                     if (int.TryParse(selectedYear.Content.ToString(), out int year))
                     {
+                         // Annee is DateTime (non-nullable), so no null check or ?. needed here
                          filtered = filtered.Where(t => t.Annee.Year == year);
                     }
+                    // If parsing fails or Annee is null (though should not happen with DateTime), the filter won't be applied.
+                }
+
+                // Ensure filteredTheses is not null before clearing and adding
+                if (filteredTheses == null)
+                {
+                     Debug.WriteLine("filteredTheses collection is null in ApplyFilters before clearing.");
+                     filteredTheses = new ObservableCollection<Theses>(); // Re-initialize if null
                 }
 
                 filteredTheses.Clear();
                 foreach (var thesis in filtered)
                 {
-                    filteredTheses.Add(thesis);
+                     // Add a safety check for null thesis object before adding to filtered collection
+                     if (thesis != null)
+                     {
+                          filteredTheses.Add(thesis);
+                     }
+                     else
+                     {
+                         Debug.WriteLine("Null thesis object found in filtered enumerable.");
+                     }
                 }
 
                 UpdatePagination();
@@ -186,30 +224,36 @@ namespace DataGridNamespace.Admin
                 currentPage = Math.Min(currentPage, totalPages);
                 currentPage = Math.Max(1, currentPage);
 
-                // Update pagination buttons
-                FirstPageButton.IsEnabled = currentPage > 1;
-                PreviousPageButton.IsEnabled = currentPage > 1;
-                NextPageButton.IsEnabled = currentPage < totalPages;
-                LastPageButton.IsEnabled = currentPage < totalPages;
+                // Update pagination buttons - Add null checks
+                if (FirstPageButton != null) FirstPageButton.IsEnabled = currentPage > 1;
+                if (PreviousPageButton != null) PreviousPageButton.IsEnabled = currentPage > 1;
+                if (NextPageButton != null) NextPageButton.IsEnabled = currentPage < totalPages;
+                if (LastPageButton != null) LastPageButton.IsEnabled = currentPage < totalPages;
 
-                // Update page number buttons
-                PaginationItemsControl.Items.Clear();
-                int startPage = Math.Max(1, currentPage - 2);
-                int endPage = Math.Min(totalPages, startPage + 4);
-                startPage = Math.Max(1, endPage - 4);
-
-                for (int i = startPage; i <= endPage; i++)
+                // Update page number buttons - Add null check
+                if (PaginationItemsControl != null)
                 {
-                    var pageButton = new Button
+                    PaginationItemsControl.Items.Clear();
+                    int startPage = Math.Max(1, currentPage - 2);
+                    int endPage = Math.Min(totalPages, startPage + 4);
+                    startPage = Math.Max(1, endPage - 4);
+
+                    for (int i = startPage; i <= endPage; i++)
                     {
-                        Content = i.ToString(),
-                        Style = i == currentPage ? 
-                            (Style)FindResource("ActivePageButtonStyle") : 
-                            (Style)FindResource("PaginationButtonStyle"),
-                        Tag = i
-                    };
-                    pageButton.Click += PageButton_Click;
-                    PaginationItemsControl.Items.Add(pageButton);
+                        // Add null check before finding resource
+                        Style buttonStyle = (i == currentPage) ? 
+                            (FindResource("ActivePageButtonStyle") as Style) : 
+                            (FindResource("PaginationButtonStyle") as Style);
+
+                        var pageButton = new Button
+                        {
+                            Content = i.ToString(),
+                            Style = buttonStyle,
+                            Tag = i
+                        };
+                        pageButton.Click += PageButton_Click;
+                        PaginationItemsControl.Items.Add(pageButton);
+                    }
                 }
 
                 // Update displayed items
