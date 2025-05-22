@@ -49,6 +49,26 @@ namespace DataGridNamespace
             IsMaximize = true;
             
             LoadRoleSpecificContent();
+
+            // Check user role and set DemandsButton visibility
+            if (userRole == RoleUtilisateur.Admin)
+            {
+                DemandsButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                DemandsButton.Visibility = Visibility.Collapsed;
+            }
+
+            // Initial view (you might want to navigate to a dashboard or home view here)
+            if (userRole == RoleUtilisateur.Admin)
+            {
+                DashboardButton_Click(DashboardButton, new RoutedEventArgs());
+            }
+            else
+            {
+                MainFrame.Content = null;
+            }
         }
 
         public MainWindow(User user)
