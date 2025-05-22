@@ -217,9 +217,36 @@ namespace DataGridNamespace
         {
             if (selectedThesis != null)
             {
-                var addThesisWindow = new AddThesisWindow(selectedThesis);
-                addThesisWindow.ShowDialog();
-                LoadUserTheses(); // Refresh the list after editing
+                try
+                {
+                    // If the thesis is declined, update its status to pending
+                    if (selectedThesis.Status?.ToLower() == "declined")
+                    {
+                        string connectionString = AppConfig.CloudSqlConnectionString;
+                        string updateQuery = "UPDATE theses SET status = 'pending' WHERE id = @thesisId";
+
+                        using (MySqlConnection conn = new MySqlConnection(connectionString))
+                        {
+                            conn.Open();
+                            using (MySqlCommand cmd = new MySqlCommand(updateQuery, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@thesisId", selectedThesis.Id);
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        // Update the status in the local object
+                        selectedThesis.Status = "pending";
+                    }
+
+                    var addThesisWindow = new AddThesisWindow(selectedThesis);
+                    addThesisWindow.ShowDialog();
+                    LoadUserTheses(); // Refresh the list after editing
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error updating thesis status: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
