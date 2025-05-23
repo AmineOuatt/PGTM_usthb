@@ -148,30 +148,31 @@ namespace DataGridNamespace.Admin
                 // Show "Please wait" message
                 SaveButton.IsEnabled = false;
                 CancelButton.IsEnabled = false;
-                
                 this.Cursor = Cursors.Wait;
-                
-                string uploadedObjectName = FilePathTextBox.Text;
-                
-                // Only upload new file if it's different from the existing one
-                if (isEditMode && FilePathTextBox.Text != existingThesis.Fichier)
+
+                string uploadedObjectName = null;
+                bool shouldUpload = true;
+
+                if (isEditMode)
                 {
-                    // Upload file to Cloud Storage
+                    shouldUpload = FilePathTextBox.Text != existingThesis.Fichier;
+                }
+
+                if (shouldUpload)
+                {
                     string fileName = Path.GetFileName(FilePathTextBox.Text);
                     string objectName = $"theses/{Guid.NewGuid()}/{fileName}";
-                    
+
                     try
                     {
                         uploadedObjectName = await _cloudStorageService.UploadFileViaSignedUrl(FilePathTextBox.Text, objectName);
-                        
+
                         if (uploadedObjectName == null)
                         {
                             MessageBox.Show("Failed to upload file to cloud storage.", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            
                             SaveButton.IsEnabled = true;
                             CancelButton.IsEnabled = true;
                             this.Cursor = Cursors.Arrow;
-                            
                             return;
                         }
                     }
@@ -179,13 +180,16 @@ namespace DataGridNamespace.Admin
                     {
                         Debug.WriteLine($"Error uploading file: {ex.Message}");
                         MessageBox.Show($"Error uploading file: {ex.Message}", "Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        
                         SaveButton.IsEnabled = true;
                         CancelButton.IsEnabled = true;
                         this.Cursor = Cursors.Arrow;
-                        
                         return;
                     }
+                }
+                else
+                {
+                    // In edit mode and file path didn't change, keep the existing GCS object name
+                    uploadedObjectName = existingThesis.Fichier;
                 }
 
                 // Get type from ComboBox
@@ -223,7 +227,7 @@ namespace DataGridNamespace.Admin
                         cmd.Parameters.AddWithValue("@resume", AbstractTextBox.Text);
                         cmd.Parameters.AddWithValue("@fichier", uploadedObjectName);
                         cmd.Parameters.AddWithValue("@userId", currentUserId);
-                        
+
                         if (isEditMode)
                         {
                             cmd.Parameters.AddWithValue("@id", existingThesis.Id);
@@ -235,11 +239,10 @@ namespace DataGridNamespace.Admin
                         }
 
                         int rowsAffected = cmd.ExecuteNonQuery();
-                        
+
                         if (rowsAffected > 0)
                         {
                             MessageBox.Show($"Thesis {(isEditMode ? "updated" : "added")} successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                            
                             // Close the window with success result
                             DialogResult = true;
                             Close();
@@ -247,7 +250,6 @@ namespace DataGridNamespace.Admin
                         else
                         {
                             MessageBox.Show($"Failed to {(isEditMode ? "update" : "add")} thesis. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            
                             SaveButton.IsEnabled = true;
                             CancelButton.IsEnabled = true;
                             this.Cursor = Cursors.Arrow;
@@ -259,7 +261,6 @@ namespace DataGridNamespace.Admin
             {
                 Debug.WriteLine($"Error {(isEditMode ? "updating" : "adding")} thesis: {ex.Message}");
                 MessageBox.Show($"Error {(isEditMode ? "updating" : "adding")} thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                
                 SaveButton.IsEnabled = true;
                 CancelButton.IsEnabled = true;
                 this.Cursor = Cursors.Arrow;
