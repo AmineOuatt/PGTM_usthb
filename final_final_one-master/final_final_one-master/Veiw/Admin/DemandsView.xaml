@@ -316,11 +316,24 @@
                 
                 <!-- Actions Column -->
                 <DataGridTemplateColumn Header="Actions" 
-                                        Width="120"
+                                        Width="180"
                                         HeaderStyle="{StaticResource ColumnHeaderStyle}">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <!-- Details Button -->
+                                <Button Style="{StaticResource CircularActionButtonStyle}"
+                                        Tag="{Binding}"
+                                        Click="ViewDetailsButton_Click"
+                                        ToolTip="View Details"
+                                        Background="#008080"
+                                        Margin="0,0,5,0">
+                                    <TextBlock Text="ℹ" 
+                                              FontSize="16"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </Button>
+
                                 <!-- Accept Button -->
                                 <Button Style="{StaticResource CircularActionButtonStyle}"
                                         Tag="{Binding}"

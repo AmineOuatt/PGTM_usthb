@@ -8,6 +8,7 @@ using ThesesModels;
 using System.Diagnostics;
 using DataGridNamespace.Services;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace DataGridNamespace.Admin
 {
@@ -568,6 +569,218 @@ namespace DataGridNamespace.Admin
                 {
                     Debug.WriteLine($"Error in DeclineButton_Click: {ex.Message}");
                     MessageBox.Show($"Error declining thesis: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void ViewDetailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Theses thesis)
+            {
+                try
+                {
+                    // Create a window to display thesis details
+                    var detailsWindow = new Window
+                    {
+                        Title = "Thesis Details",
+                        Width = 700,
+                        Height = 600,
+                        WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                        ResizeMode = ResizeMode.NoResize,
+                        Background = new SolidColorBrush(Colors.White)
+                    };
+
+                    // Create the content
+                    var scrollViewer = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+                    var grid = new Grid { Margin = new Thickness(30) };
+
+                    // Define rows for the grid
+                    for (int i = 0; i < 15; i++)
+                    {
+                        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    }
+
+                    // Add a header
+                    var headerBorder = new Border
+                    {
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#008080")),
+                        Padding = new Thickness(20, 15, 20, 15),
+                        CornerRadius = new CornerRadius(8, 8, 0, 0)
+                    };
+                    var headerTitle = new TextBlock
+                    {
+                        Text = thesis.Titre ?? "Thesis Details",
+                        Foreground = Brushes.White,
+                        FontSize = 20,
+                        FontWeight = FontWeights.Bold,
+                        TextWrapping = TextWrapping.Wrap
+                    };
+                    headerBorder.Child = headerTitle;
+                    Grid.SetRow(headerBorder, 0);
+                    Grid.SetColumnSpan(headerBorder, 2);
+                    grid.Children.Add(headerBorder);
+
+                    // Add a content border
+                    var contentBorder = new Border
+                    {
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0FFFF")),
+                        Padding = new Thickness(25),
+                        CornerRadius = new CornerRadius(0, 0, 8, 8),
+                        BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5E7EB")),
+                        BorderThickness = new Thickness(1)
+                    };
+                    var contentGrid = new Grid();
+                    for (int i = 0; i < 14; i++)
+                    {
+                        contentGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    }
+                    contentBorder.Child = contentGrid;
+                    Grid.SetRow(contentBorder, 1);
+                    Grid.SetColumnSpan(contentBorder, 2);
+                    grid.Children.Add(contentBorder);
+
+                    // Title
+                    AddDetailRow(contentGrid, 0, "Title:", thesis.Titre ?? "N/A");
+
+                    // Author
+                    AddDetailRow(contentGrid, 2, "Author:", thesis.Auteur ?? "N/A");
+
+                    // Specialty
+                    AddDetailRow(contentGrid, 4, "Specialty:", thesis.Speciality ?? "N/A");
+
+                    // Type
+                    AddDetailRow(contentGrid, 6, "Type:", thesis.Type.ToString());
+
+                    // Keywords
+                    AddDetailRow(contentGrid, 8, "Keywords:", thesis.MotsCles ?? "N/A");
+
+                    // Year
+                    string yearText = "N/A";
+                    if (thesis.Annee != default)
+                    {
+                        try
+                        {
+                            yearText = thesis.Annee.Year.ToString();
+                        }
+                        catch (Exception)
+                        {
+                            yearText = "N/A";
+                        }
+                    }
+                    AddDetailRow(contentGrid, 10, "Year:", yearText);
+
+                    // Abstract
+                    AddDetailRow(contentGrid, 12, "Abstract:", thesis.Resume ?? "N/A", true);
+
+                    // Add buttons at the bottom
+                    var buttonsPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        HorizontalAlignment = HorizontalAlignment.Right,
+                        Margin = new Thickness(0, 20, 0, 0)
+                    };
+
+                    // Close button
+                    var closeButton = new Button
+                    {
+                        Content = "Close",
+                        Width = 120,
+                        Height = 40,
+                        Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#008080")),
+                        Foreground = Brushes.White,
+                        BorderThickness = new Thickness(0),
+                        Style = (Style)FindResource("CircularActionButtonStyle")
+                    };
+                    closeButton.Click += (s, args) => detailsWindow.Close();
+                    buttonsPanel.Children.Add(closeButton);
+
+                    // Add buttons to the grid
+                    Grid.SetRow(buttonsPanel, 3);
+                    grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    grid.Children.Add(buttonsPanel);
+
+                    scrollViewer.Content = grid;
+                    detailsWindow.Content = scrollViewer;
+                    detailsWindow.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error showing thesis details: {ex.Message}");
+                    MessageBox.Show($"Error showing thesis details: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void AddDetailRow(Grid grid, int row, string label, string value, bool isMultiline = false)
+        {
+            // Ensure columns are defined
+            if (grid.ColumnDefinitions.Count == 0)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Label column
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Value column
+            }
+
+            // Label
+            var labelText = new TextBlock
+            {
+                Text = label,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 4),
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            Grid.SetRow(labelText, row);
+            Grid.SetColumn(labelText, 0);
+            grid.Children.Add(labelText);
+
+            // Value
+            var valueText = new TextBlock
+            {
+                Text = value,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 16),
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            if (isMultiline)
+            {
+                valueText.TextWrapping = TextWrapping.Wrap;
+            }
+            Grid.SetRow(valueText, row);
+            Grid.SetColumn(valueText, 1);
+            grid.Children.Add(valueText);
+        }
+
+        private void ViewPdfButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Theses thesis)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(thesis.Fichier))
+                    {
+                        MessageBox.Show("No PDF file available for this thesis.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    // Create a window to display the PDF
+                    var pdfWindow = new Window
+                    {
+                        Title = $"PDF Viewer - {thesis.Titre}",
+                        Width = 800,
+                        Height = 600,
+                        WindowStartupLocation = WindowStartupLocation.CenterScreen
+                    };
+
+                    // Create a WebBrowser control to display the PDF
+                    var webBrowser = new WebBrowser();
+                    webBrowser.Navigate(new Uri(thesis.Fichier));
+                    pdfWindow.Content = webBrowser;
+
+                    pdfWindow.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error viewing PDF: {ex.Message}");
+                    MessageBox.Show($"Error viewing PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
