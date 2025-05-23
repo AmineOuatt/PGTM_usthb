@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using MySql.Data.MySqlClient;
 using ThesesModels;
 using System.Diagnostics;
+using DataGridNamespace.Services;
+using System.Threading.Tasks;
 
 namespace DataGridNamespace.Admin
 {
@@ -16,6 +18,7 @@ namespace DataGridNamespace.Admin
         private const int ItemsPerPage = 10;
         private int currentPage = 1;
         private int totalPages = 1;
+        private readonly EmailService _emailService;
 
         public DemandsView()
         {
@@ -24,6 +27,7 @@ namespace DataGridNamespace.Admin
                 InitializeComponent();
                 pendingTheses = new ObservableCollection<Theses>();
                 filteredTheses = new ObservableCollection<Theses>();
+                _emailService = new EmailService();
                 LoadPendingTheses();
                 PopulateYearFilter();
             }
@@ -335,7 +339,127 @@ namespace DataGridNamespace.Admin
             }
         }
 
-        private void AcceptButton_Click(object sender, RoutedEventArgs e)
+        private async Task<string> GetThesisOwnerEmailAsync(int thesisId)
+        {
+            try
+            {
+                string connectionString = AppConfig.CloudSqlConnectionString;
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"SELECT u.email 
+                                   FROM users u 
+                                   INNER JOIN theses t ON u.id = t.user_id 
+                                   WHERE t.id = @thesisId";
+                    
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@thesisId", thesisId);
+                        object result = await cmd.ExecuteScalarAsync();
+                        return result?.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting thesis owner email: {ex.Message}");
+                throw;
+            }
+        }
+
+        private string ShowRejectionReasonDialog()
+        {
+            var dialog = new Window
+            {
+                Title = "Rejection Reason",
+                Width = 400,
+                Height = 250,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize
+            };
+
+            var grid = new Grid { Margin = new Thickness(10) };
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0, GridUnitType.Auto) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(0, GridUnitType.Auto) });
+
+            var textBlock = new TextBlock
+            {
+                Text = "Please provide a reason for rejecting this thesis:",
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            Grid.SetRow(textBlock, 0);
+
+            var textBox = new TextBox
+            {
+                AcceptsReturn = true,
+                TextWrapping = TextWrapping.Wrap,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            Grid.SetRow(textBox, 1);
+
+            var buttonPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+            Grid.SetRow(buttonPanel, 2);
+
+            var okButton = new Button
+            {
+                Content = "OK",
+                Width = 75,
+                Height = 25,
+                Margin = new Thickness(0, 0, 10, 0)
+            };
+
+            var cancelButton = new Button
+            {
+                Content = "Cancel",
+                Width = 75,
+                Height = 25
+            };
+
+            buttonPanel.Children.Add(okButton);
+            buttonPanel.Children.Add(cancelButton);
+
+            grid.Children.Add(textBlock);
+            grid.Children.Add(textBox);
+            grid.Children.Add(buttonPanel);
+
+            dialog.Content = grid;
+
+            string result = null;
+
+            okButton.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    MessageBox.Show("Please provide a reason for rejection.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                result = textBox.Text;
+                dialog.DialogResult = true;
+                dialog.Close();
+            };
+
+            cancelButton.Click += (s, e) =>
+            {
+                dialog.DialogResult = false;
+                dialog.Close();
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        private async void AcceptButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is Theses thesis)
             {
@@ -361,6 +485,13 @@ namespace DataGridNamespace.Admin
                                 
                                 if (rowsAffected > 0)
                                 {
+                                    // Get the thesis owner's email
+                                    string ownerEmail = await GetThesisOwnerEmailAsync(thesis.Id);
+                                    if (!string.IsNullOrEmpty(ownerEmail))
+                                    {
+                                        await _emailService.SendThesisStatusEmailAsync(ownerEmail, thesis.Titre, "accepted");
+                                    }
+
                                     pendingTheses.Remove(thesis);
                                     ApplyFilters();
                                     MessageBox.Show("Thesis accepted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -381,7 +512,7 @@ namespace DataGridNamespace.Admin
             }
         }
 
-        private void DeclineButton_Click(object sender, RoutedEventArgs e)
+        private async void DeclineButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is Theses thesis)
             {
@@ -395,6 +526,13 @@ namespace DataGridNamespace.Admin
 
                     if (result == MessageBoxResult.Yes)
                     {
+                        // Show rejection reason dialog
+                        string rejectionReason = ShowRejectionReasonDialog();
+                        if (rejectionReason == null)
+                        {
+                            return; // User cancelled
+                        }
+
                         string connectionString = AppConfig.CloudSqlConnectionString;
                         using (MySqlConnection conn = new MySqlConnection(connectionString))
                         {
@@ -407,6 +545,13 @@ namespace DataGridNamespace.Admin
                                 
                                 if (rowsAffected > 0)
                                 {
+                                    // Get the thesis owner's email
+                                    string ownerEmail = await GetThesisOwnerEmailAsync(thesis.Id);
+                                    if (!string.IsNullOrEmpty(ownerEmail))
+                                    {
+                                        await _emailService.SendThesisStatusEmailAsync(ownerEmail, thesis.Titre, "declined", rejectionReason);
+                                    }
+
                                     pendingTheses.Remove(thesis);
                                     ApplyFilters();
                                     MessageBox.Show("Thesis declined successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
