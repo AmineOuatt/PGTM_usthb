@@ -197,7 +197,7 @@
                                      Grid.Column="1"
                                      TextChanged="txtUser_L1_TextChanged"/>
                             <TextBlock x:Name="textUser_L1"
-                                       Text="Username:"
+                                       Text="Email:"
                                        Style="{StaticResource textHint}"
                                        Grid.Column="1"
                                        VerticalAlignment="Center"

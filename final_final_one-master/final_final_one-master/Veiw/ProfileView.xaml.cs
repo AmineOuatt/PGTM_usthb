@@ -156,7 +156,7 @@ namespace DataGrid
             
             // Toggle UI elements
             UsernameTextBox.IsReadOnly = !isEditMode;
-            EmailTextBox.IsReadOnly = !isEditMode;
+            EmailTextBox.IsReadOnly = true; // Email is always read-only
             PasswordContainer.Visibility = isEditMode ? Visibility.Visible : Visibility.Collapsed;
             
             // Update button text
@@ -218,9 +218,9 @@ namespace DataGrid
                     }
                 }
 
-                // Update user in database
+                // Update user in database - Only update username since email is read-only
                 string connectionString = AppConfig.CloudSqlConnectionString;
-                string updateQuery = "UPDATE users SET nom = @nom, email = @email";
+                string updateQuery = "UPDATE users SET nom = @nom";
                 
                 // Add profile picture update if changed
                 if (profilePicRef != originalProfilePicRef)
@@ -236,7 +236,6 @@ namespace DataGrid
                     using (MySqlCommand cmd = new MySqlCommand(updateQuery, conn))
                     {
                         cmd.Parameters.AddWithValue("@nom", UsernameTextBox.Text);
-                        cmd.Parameters.AddWithValue("@email", EmailTextBox.Text);
                         cmd.Parameters.AddWithValue("@id", currentUser.Id);
                         
                         if (profilePicRef != originalProfilePicRef)
