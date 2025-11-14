@@ -1,0 +1,26 @@
+# Visual Studio cache
+.vs/
+*.user
+*.suo
+
+# Build results
+bin/
+obj/
+Debug/
+Release/
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# IDE settings
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.cache
+*.sqlite
