@@ -144,14 +144,6 @@ Key configuration settings are located in `AppConfig.cs`:
 - **Firebase**: API key and authentication endpoints
 - **Cloud Storage**: Bucket name and function endpoints
 
-## 📄 License
-
-[Specify your license here]
-
-## 👥 Authors
-
-[Add author information]
-
 ## 📞 Support
 
 For issues and questions, please open an issue in the repository.
